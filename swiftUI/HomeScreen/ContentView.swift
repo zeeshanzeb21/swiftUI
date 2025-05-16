@@ -48,7 +48,7 @@ struct ContentView: View {
                     }
                     .padding()
                 }
-                .alert("Error", isPresented: $viewModel.showAlert) {
+                .alert("Errorsss", isPresented: $viewModel.showAlert) {
                     Button("OK", role: .cancel) {
                         viewModel.showAlert = false
                     }
