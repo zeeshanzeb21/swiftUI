@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StyledTextField: View {
+struct CustomSearch: View {
     @State private var text: String = ""
     var isFocused: Bool = false
 
@@ -29,7 +29,7 @@ struct StyledTextField: View {
 struct StyledTextField_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
-            StyledTextField(isFocused: true)
+            CustomSearch(isFocused: true)
         }
         .padding()
         .background(Color.gray.opacity(0.1))

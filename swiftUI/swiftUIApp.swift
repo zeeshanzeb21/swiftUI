@@ -12,7 +12,7 @@ import Alamofire
 struct swiftUIApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BrowserHomeView()
         }
     }
 }
