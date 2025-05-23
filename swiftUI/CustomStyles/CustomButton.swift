@@ -18,6 +18,7 @@ struct BorderedButtonStyle: ButtonStyle {
             .overlay(
                 RoundedRectangle(cornerRadius: 40)
                     .stroke(isFocused ? Color(hex: "#005C79") : Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
+                
             )
     }
     }

@@ -5,11 +5,11 @@
 //  Created by Invicttus on 16/05/2025.
 //
 import SwiftUI
-
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
     @State private var searchText: String = ""
     @FocusState private var isSearchFocused: Bool
+    @State private var placeholderText: String = "Search Here..."
     enum FocusableButton {
         case premium, settings, images , youtube , twich, wikipedia, pin, ebay, search, mic, clickSearch
     }
@@ -78,31 +78,34 @@ struct BrowserHomeView: View {
                             Button(action: {
                                 print("Tapped")
                             }) {
-                                Image("premium")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                                    .padding(8)
-                                    .cornerRadius(8)
+                                HStack(spacing: 8) {
+                                            Image("premium")
+                                                .resizable()
+                                                .frame(width: 48, height: 48)
+                                                .padding(8)
+                                    Text("Premium")
+                                        .font(.system( size: 31,weight: .bold, design: .default))
+                                        .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                        }
                             }
-                            .focusable()
                             .focused($focusedButton, equals: .premium)
-                            .buttonStyle(BorderedButtonStyle(isFocused: isFocusedPremium()))
+                            .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260))
                             Button(action: {
                                 print("Settings tapped")
                             }) {
-                                Image("setting")
+                                Image(isFocusedSetting() ? "setting_focus" : "setting")
                                     .resizable()
-                                    .frame(width: 40, height: 40)
+                                    .frame(width: 45, height: 45)
                                     .padding(8)
                             }
-                            .focusable()
                             .focused($focusedButton, equals: .settings)
                             .buttonStyle(BorderedButtonStyle(isFocused: isFocusedSetting()))
                         }
                         .padding(.trailing, 20)
                     }
-                    .focusSection()
+                    
                 }
+                .focusSection()
                 .padding(.top, 57)
                 ZStack {
                     // Background
@@ -117,53 +120,72 @@ struct BrowserHomeView: View {
                                 )
                         )
 
-                    HStack(spacing: 10) {
-                        // Mic Button
+                    HStack(spacing: 0) {
+                        // Mic button
                         Button(action: {
                             print("Tapped mic")
                         }) {
                             Image("mic")
                                 .resizable()
-                                .frame(width: 20, height: 30)
-                                .padding(8)
+                                .frame(width: 84, height: 77)
                         }
-                        .focusable()
-                        .focusSection()
                         .focused($focusedButton, equals: .mic)
-                        .buttonStyle(BorderedButtonStyle(isFocused: isFocusedMic()))
+                        .buttonStyle(.plain)
+                        .focusable(false)
+                        .offset(x: -26)
 
-                        if searchText.isEmpty {
-                                Text("Type here...")
-                                .foregroundColor(Color(hex: "#6A6767"))
-                                    .font(.system(size: 35))
-                                    .frame(height: 50)               // Match TextField height
-                                    .padding(.leading, 10)
-                                    .frame(maxHeight: .infinity, alignment: .center) //
+                            if searchText.isEmpty {
+                                Text(placeholderText)
+                                    .foregroundColor(Color(hex: "#6A6767"))
+                                    .font(.system(size: 35,weight: .medium))
+                                    .padding(.top, 6)
                             }
-                        else if focusedButton != .search
+                        
+                        if(focusedButton != .search)
                         {
                             Text(searchText)
-                                .foregroundColor(.gray)
-                                .font(.system(size: 35))
-                                .frame(height: 80)               // Match TextField height
-                                .padding(.leading, 10)
-                                .frame(maxHeight: .infinity, alignment: .center)
-                        }
-                                TextField("", text: $searchText)
-                                .font(.system(size: 35))
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.black)
+                                .font(.system(size: 35,weight: .medium))
                                 .padding(.top, 6)
-                                .padding(.leading, 10)
-                                .background(Color.white)
-                                .cornerRadius(25)
-                                .textFieldStyle(.plain)
-                                .focused($focusedButton, equals: .search)
-                                .focusSection()
-                    }
-                    .frame(width: 950, height: 80)
+                        }
+
+                        TextField("Search Here...", text: $searchText)
+                            .font(.system(size: 35))
+                            .foregroundColor(.black)
+                            .padding(.top, 6)
+                            .padding(.leading, 0)
+                            .background(Color.clear)
+                            .textFieldStyle(.plain)
+                            .focused($focusedButton, equals: .search)
+                            .onChange(of: focusedButton) { oldValue, newValue in
+                                if newValue == .search {
+                                    placeholderText = ""
+                                } else {
+                                    placeholderText = "Search Here..."
+                                }
+                            }
+                        }
+                        
                     
-                }.padding(.top, 175)
+                    .frame(width: 900, height: 80)
+                    HStack(alignment: .center) {
+                        Button(action: {
+                            print("Tapped")
+                        }) {
+                            Text("Search")
+                                .font(.system(size: 34, weight: .medium))
+                                .foregroundColor(isFocusedSearchClicked() ? .white : Color(hex: "#3C3B3B"))
+                        }
+                        .focused($focusedButton, equals: .clickSearch)
+                        .buttonStyle(PremiumButton(isFocused: isFocusedSearchClicked(), width: 160))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing) // Align HStack to the left
+                    .padding(.trailing, 210)
+                  
+                }
+                .padding(.top, 175)
                 .focusSection()
+                
 
                 HStack(spacing: 40) {
                     Button(action: {
@@ -175,11 +197,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("Images")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedImages() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .images)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages()))
                     Button(action: {
@@ -191,11 +212,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("Youtube")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedYoutube() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .youtube)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedYoutube()))
                     Button(action: {
@@ -207,11 +227,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("Twitch")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedTwich() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .twich)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedTwich()))
                 }.padding(.top, 47)
@@ -226,11 +245,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("Wikipedia")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedWeki() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .wikipedia)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeki()))
                     Button(action: {
@@ -242,11 +260,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("eBay")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedEbay() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .ebay)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedEbay()))
                     Button(action: {
@@ -258,11 +275,10 @@ struct BrowserHomeView: View {
                                         .frame(width: 51, height: 51)
                                         .padding(8)
                             Text("Pinterest")
-                                .font(Font.custom("SF-Pro-Display-Light", size: 42))
+                                .font(.system(size: 42,weight: .regular,design: .default))
                                 .foregroundColor(isFocusedPin() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                 }
                     }
-                    .focusable()
                     .focused($focusedButton, equals: .pin)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedPin()))
                 }.padding(.top, 10)
@@ -279,7 +295,6 @@ struct BrowserHomeView: View {
                 focusedButton = .search
             case (.settings, .down):
                 focusedButton = .search
-                
                 default :
                 break
             }
@@ -290,3 +305,6 @@ struct BrowserHomeView: View {
         }
         
     }
+#Preview {
+    BrowserHomeView()
+}
