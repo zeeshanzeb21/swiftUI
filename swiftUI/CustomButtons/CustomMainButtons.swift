@@ -9,14 +9,17 @@ import SwiftUI
 
 struct BorderedMainButtonStyle: ButtonStyle {
     var isFocused: Bool
-    
+    var height: CGFloat
+    var width: CGFloat
+    var cornerRadius: CGFloat
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 350, height: 105)
+            .frame(width: width, height: height)
             .background(isFocused ? Color(hex: "#005C79") : Color.white)
-            .cornerRadius(53)
+            .cornerRadius(cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: 53)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(isFocused ? Color(hex: "#005C79") : Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
             )
     }

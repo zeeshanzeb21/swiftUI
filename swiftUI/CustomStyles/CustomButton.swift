@@ -9,7 +9,6 @@ import SwiftUI
 
 struct BorderedButtonStyle: ButtonStyle {
     var isFocused: Bool
-    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(width: 80, height: 80)
