@@ -19,7 +19,27 @@ struct SearchModel: Codable {
 struct DataModel: Codable {
     let image: String?
     let links: String?
+    let link: String?
+    let source: String?
+    let imageAlt: String?
+    let rank: Int?
+    let globalRank: Int?
     let title, heading, description: String?
+    let sourceLogo, imageBase64: String?
+    enum CodingKeys: String, CodingKey {
+            case link
+            case links
+            case rank
+            case image
+            case title
+            case source
+            case imageAlt = "image_alt"
+            case globalRank = "global_rank"
+            case sourceLogo = "source_logo"
+            case imageBase64 = "image_base64"
+            case heading
+            case description
+        }
 }
 
 // MARK: - Encode/decode helpers

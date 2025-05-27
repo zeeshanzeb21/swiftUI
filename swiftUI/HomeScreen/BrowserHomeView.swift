@@ -294,7 +294,7 @@ struct BrowserHomeView: View {
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
                 case .web:
-                    WebScreen(searchText: .constant(""))
+                    WebScreen(searchText: "")
                 }
             }
             .onAppear {

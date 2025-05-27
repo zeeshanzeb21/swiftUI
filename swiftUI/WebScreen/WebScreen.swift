@@ -9,13 +9,14 @@ import SwiftUI
 
 struct WebScreen: View {
     @FocusState private var focusedButton: FocusableButton?
-    @Binding var searchText: String
+    @State  var searchText: String
     @State private var placeholderText: String = "Search Here..."
     @State private var focusedIndex: Int? = nil
     @FocusState private var focusedField: FocusField?
     @State private var start: Int = 0
     @State private var limit: Int = 10
-
+    @State private var searchType : String = "general"
+    
     enum FocusField: Hashable {
         case item(Int)
     }
@@ -68,6 +69,9 @@ struct WebScreen: View {
     private var articleButtons: [(Int, DataModel)] {
         Array(viewModel.searchData.enumerated())
     }
+    
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
+    
     var body: some View {
         ZStack {
             Image("bgImage")
@@ -75,24 +79,27 @@ struct WebScreen: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
-            if viewModel.showLoading {
+            if viewModel.showLoading == true{
                 ZStack {
                     Text("Please wait! we are fetching results")
-                        .foregroundColor(Color(hex: "#6A6767"))
-                        .font(.system(size: 35, weight: .regular))
+                        .font(Font.custom("Saira-Bold", size: 35))
+                        .foregroundColor(Color(hex: "#3C3B3B"))
                         .padding(.top, 6)
                         .padding(.leading, 10)
                 }
             }
-            if viewModel.showLoading == false && viewModel.searchData.isEmpty {
+            
+            if searchType == "videos" || searchType == "news" || searchType == "shopping" {
                 ZStack {
-                    Text("Please wait! we are fetching results")
-                        .foregroundColor(Color(hex: "#6A6767"))
-                        .font(.system(size: 35, weight: .regular))
+                    Text("Coming Soon !!!")
+                        .font(Font.custom("Saira-Bold", size: 70))
+                        .foregroundColor(Color(hex: "#3C3B3B"))
                         .padding(.top, 6)
                         .padding(.leading, 10)
                 }
+                
             }
+        
             
             VStack(alignment: .leading) {
                 HStack(spacing: 0) {
@@ -111,7 +118,7 @@ struct WebScreen: View {
                         height: isFocusedLeft() ? 60 : 45,
                         cornerRadius: isFocusedLeft() ? 30 : 23
                     ))
-
+                    
                     Button(action: {
                         print("Settings tapped")
                     }) {
@@ -141,28 +148,25 @@ struct WebScreen: View {
                                             lineWidth: 4
                                         )
                                 )
-
+                            
                             HStack(spacing: 0) {
                                 if searchText.isEmpty {
                                     Text(placeholderText)
                                         .foregroundColor(Color(hex: "#6A6767"))
-                                        .font(.system(size: 35, weight: .regular))
-                                        .padding(.top, 6)
+                                        .font(.system(size: 30, weight: .regular))
                                         .padding(.leading, 10)
                                 }
-
+                                
                                 if focusedButton != .search {
                                     Text(searchText)
                                         .foregroundColor(Color(hex: "#6A6767"))
-                                        .font(.system(size: 35, weight: .regular))
-                                        .padding(.top, 6)
+                                        .font(.system(size: 30, weight: .regular))
                                         .padding(.leading, 10)
                                 }
-
+                                
                                 TextField("Search Here...", text: $searchText)
-                                    .font(.system(size: 35, weight: .regular))
+                                    .font(.system(size: 30, weight: .regular))
                                     .foregroundColor(Color(hex: "#6A6767"))
-                                    .padding(.top, 6)
                                     .padding(.leading, 10)
                                     .background(Color.clear)
                                     .textFieldStyle(.plain)
@@ -173,7 +177,7 @@ struct WebScreen: View {
                             }
                             .frame(width: 1000, height: 80)
                         }
-
+                        
                         HStack{
                             Spacer()
                             HStack(spacing: 16) {
@@ -207,16 +211,19 @@ struct WebScreen: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-
+                    
                     
                     .padding(.leading, 77)
                 }.focusSection()
-                .padding(.leading, 0)
-                .padding(.top, 10)
+                    .padding(.leading, 0)
+                    .padding(.top, 10)
                 
                 HStack(spacing: 20) {
                     Button(action: {
-                        print("Tapped")
+                        searchType =  "general"
+                        start = 0
+                        limit = 10
+                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
                     }) {
                         HStack(spacing: 8) {
                             Image(isFocusedWeb() ?"web_focus": "web")
@@ -231,7 +238,10 @@ struct WebScreen: View {
                     .focused($focusedButton, equals: .web)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
                     Button(action: {
-                        print("Tapped")
+                        searchType =  "isch"
+                        start = 0
+                        limit = 10
+                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
                     }) {
                         HStack(spacing: 8) {
                             Image(isFocusedImages() ? "images_focus": "images")
@@ -246,14 +256,14 @@ struct WebScreen: View {
                     .focused($focusedButton, equals: .images)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
                     Button(action: {
-                        print("Tapped")
+                        searchType = "videos"
                     }) {
                         HStack(spacing: 8) {
                             Image(isFocusedVideos() ? "video_focus"
-                            :"video")
-                                .resizable()
-                                .frame(width: 33, height: 24)
-                                .padding(4)
+                                  :"video")
+                            .resizable()
+                            .frame(width: 33, height: 24)
+                            .padding(4)
                             Text("Videos")
                                 .font(.system(size: 28,weight: .medium,design: .default))
                                 .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
@@ -262,7 +272,7 @@ struct WebScreen: View {
                     .focused($focusedButton, equals: .videos)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
                     Button(action: {
-                        print("Tapped")
+                        searchType = "news"
                     }) {
                         HStack(spacing: 8) {
                             Image(isFocusedNews() ? "news_focus" :"news")
@@ -277,7 +287,7 @@ struct WebScreen: View {
                     .focused($focusedButton, equals: .news)
                     .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
                     Button(action: {
-                        print("Tapped")
+                        searchType = "shopping"
                         
                     }) {
                         HStack(spacing: 8) {
@@ -295,57 +305,88 @@ struct WebScreen: View {
                 }.padding(.top, 4)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .focusSection()
-                ScrollView {
-                    VStack(spacing: 20) {
-                        ForEach(articleButtons, id: \.0) { index, article in
-                            articleButtonView(index: index, article: article)
-                        }
-                        HStack{
-                            if !viewModel.searchData.isEmpty && start != 0 {
-                                Button(action: {
-                                    start = start - 10
-                                    limit = limit - 10
-                                    viewModel.getData(query: "cricket", searchType: "general", start: start, limit: limit)
-                                    print("start")
-                                    print(start)
-                                    print(limit)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                            focusedField = .item(0)
-                                        }
-                                    
-                                    
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Text("Previous Page")
-                                            .font(.system( size: 31,weight: .bold, design: .default))
-                                            .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
-                                    }
+                if(searchType == "general" || searchType == "isch"){
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            if(searchType == "general" && viewModel.showLoading == false)
+                            {
+                                
+                                
+                                ForEach(articleButtons, id: \.0) { index, article in
+                                    articleButtonView(index: index, article: article)
                                 }
-                                .focused($focusedButton, equals: .loadless)
-                                .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
+                                
                             }
-                            if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
-                                Button(action: {
-                                    start = limit
-                                    limit = limit + 10
-                                    viewModel.getData(query:  "cricket", searchType: "general", start: start, limit: limit)
-                                    print(start)
-                                    print(limit)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                            focusedField = .item(0)
-                                        }
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Text("Next Page")
-                                            .font(.system( size: 31,weight: .bold, design: .default))
-                                            .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                            
+                            else if(searchType == "isch" && viewModel.showLoading == false)
+                            {
+                                
+                                HStack {
+                                        Text("Search Results")
+                                            .foregroundColor(Color(hex: "#5F6368"))
+                                            .font(.system(size: 28, weight: .regular))
+                                        Spacer()
                                     }
-                                }
-                                .focused($focusedButton, equals: .loadMore)
-                                .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
-                            }
-                        }
+                                    .padding(.leading, 26)
+                                    .frame(maxWidth: .infinity)
                     
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(articleButtons, id: \.0) { index, article in
+                                        articleImageView(index: index, article: article)
+                                            .frame(width: 430, height: 460)
+                                            .background(Color.white)
+                                            .cornerRadius(20)
+                                    }
+                                }
+                                .padding()
+                            }
+                            HStack{
+                                if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
+                                    Button(action: {
+                                        start = start - 10
+                                        limit = limit - 10
+                                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                                        print("start")
+                                        print(start)
+                                        print(limit)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            focusedField = .item(0)
+                                        }
+                                        
+                                        
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Text("Previous Page")
+                                                .font(.system( size: 31,weight: .bold, design: .default))
+                                                .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                        }
+                                    }
+                                    .focused($focusedButton, equals: .loadless)
+                                    .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
+                                }
+                                if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
+                                    Button(action: {
+                                        start = limit
+                                        limit = limit + 10
+                                        viewModel.getData(query:  "cricket", searchType: searchType, start: start, limit: limit)
+                                        print(start)
+                                        print(limit)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            focusedField = .item(0)
+                                        }
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Text("Next Page")
+                                                .font(.system( size: 31,weight: .bold, design: .default))
+                                                .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                        }
+                                    }
+                                    .focused($focusedButton, equals: .loadMore)
+                                    .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
+                                }
+                            }
+                            
+                        }
                     }
                 }
                 Spacer()
@@ -355,29 +396,29 @@ struct WebScreen: View {
             
         }.onAppear{
             focusedButton = .web
-                        viewModel.getData(query: "cricket", searchType: "general", start: start, limit: limit)
-                    }.alert("Error", isPresented: $viewModel.showAlert) {
-                        Button("OK", role: .cancel) {}
-                    } message: {
-                        Text(viewModel.chatListLoadingError)
-                    }
-        
+            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+        }.alert("Error", isPresented: $viewModel.showAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.chatListLoadingError)
         }
+        
+    }
     
     func base64ToImage(base64String: String) -> UIImage? {
-            let cleanedString: String
-            if let range = base64String.range(of: "base64,") {
-                cleanedString = String(base64String[range.upperBound...])
-            } else {
-                cleanedString = base64String
-            }
-            guard let imageData = Data(base64Encoded: cleanedString, options: .ignoreUnknownCharacters),
-                  let image = UIImage(data: imageData) else {
-                return nil
-            }
-
-            return image
+        let cleanedString: String
+        if let range = base64String.range(of: "base64,") {
+            cleanedString = String(base64String[range.upperBound...])
+        } else {
+            cleanedString = base64String
         }
+        guard let imageData = Data(base64Encoded: cleanedString, options: .ignoreUnknownCharacters),
+              let image = UIImage(data: imageData) else {
+            return nil
+        }
+        
+        return image
+    }
     
     @ViewBuilder
     private func articleButtonView(index: Int, article: DataModel) -> some View {
@@ -401,26 +442,26 @@ struct WebScreen: View {
                             .padding(.leading, 30)
                             .overlay(Text("Failed").foregroundColor(.white).font(.caption))
                     }
-
+                    
                     VStack(alignment: .leading, spacing: 0) {
                         Text(article.title ?? "")
                             .font(.system(size: 24, weight: .medium))
                             .foregroundColor(Color(hex: "#3C3B3B"))
                             .padding(.top, 26)
-
+                        
                         Text(article.links ?? "")
                             .font(.system(size: 18))
                             .foregroundColor(Color(hex: "#3C3B3B"))
                     }
                 }
-
+                
                 Text(article.heading ?? "")
                     .font(.system(size: 22, weight: .medium))
                     .foregroundColor(Color(hex: "#00759B"))
                     .padding(.leading, 30)
                     .padding(.top, 4)
-
-            
+                
+                
                 Text(article.description ?? "")
                     .font(.system(size: 20))
                     .foregroundColor(Color(hex: "#3C3B3B"))
@@ -428,7 +469,69 @@ struct WebScreen: View {
                     .lineLimit(2)
             }
         }
-        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index))
+        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 204, width: 1669))
+        .focused($focusedField, equals: .item(index))
+        .onChange(of: focusedField) { _, newValue in
+            if case .item(let idx) = newValue {
+                focusedIndex = idx
+            }
+        }
+    }
+    @ViewBuilder
+    private func articleImageView(index: Int, article: DataModel) -> some View {
+        Button(action: {
+            print("Selected article at index \(index)")
+        }) {
+            VStack{
+                if let image = base64ToImage(base64String: article.image ?? "") {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(height: 300)
+                        .clipped()
+                        .cornerRadius(16)
+                        .padding(.leading, 24)
+                        .padding(.trailing, 24)
+                        .padding(.bottom, 2)
+                        .padding(.top, 20)
+                } else {
+                    Image("bbc")
+                        .resizable()
+                        .frame(height: 300)
+                        .clipped()
+                        .cornerRadius(16)
+                        .padding(.leading, 24)
+                        .padding(.trailing, 24)
+                        .padding(.top, 24)
+                        .padding(.bottom, 2)
+
+                }
+                HStack(alignment: .top, spacing: 0) {
+                    if let image = base64ToImage(base64String: article.sourceLogo ?? "bbc") {
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: 22, height: 22)
+                    }
+                    Text(article.source ?? "")
+                        .font(Font.custom("Raleway-Regular", size: 18).weight(.regular))
+                        .foregroundColor(Color(hex: "#3C3B3B"))
+                        .padding(.leading, 4)
+                    Spacer()
+                }
+                .padding(.leading, 26)
+                .padding(.top, 0)
+                HStack(alignment: .top, spacing: 0) {
+                    Text(article.title ?? "")
+                        .font(Font.custom("Raleway-Regular", size: 24).weight(.regular))
+                        .foregroundColor(Color(hex: "#3C3B3B"))
+                        .padding(.leading, 4)
+                    Spacer()
+                }
+                .padding(.leading, 26)
+                .padding(.top, 0)
+                Spacer()
+            }
+        }
+        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 460, width: 430))
         .focused($focusedField, equals: .item(index))
         .onChange(of: focusedField) { _, newValue in
             if case .item(let idx) = newValue {
@@ -437,9 +540,9 @@ struct WebScreen: View {
         }
     }
 
-    }
-
-
+    
+    
+}
 
 
 

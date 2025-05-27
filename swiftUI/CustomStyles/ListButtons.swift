@@ -9,17 +9,18 @@ import SwiftUI
 
 struct ListButtonStyle: ButtonStyle {
     var isFocused: Bool
-
+    var height: CGFloat
+    var width: CGFloat
     func makeBody(configuration: Configuration) -> some View {
            configuration.label
                .padding(EdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0))
-               .frame(width: 1669, height: 204, alignment: .topLeading)
+               .frame(width: width, height: height, alignment: .topLeading)
                .background(Color.white)
                .overlay(
                    RoundedRectangle(cornerRadius: 20)
                        .stroke(
                            isFocused ? Color(hex: "#005C79") : Color(hex: "#E3E3E4").opacity(0.7),
-                           lineWidth: 4
+                           lineWidth: 8
                        )
                )
                .cornerRadius(20)
@@ -79,7 +80,7 @@ struct ListButtonStyle_Previews: PreviewProvider {
                     )
             )
         }
-        .buttonStyle(ListButtonStyle(isFocused: true))
+        .buttonStyle(ListButtonStyle(isFocused: false,height: 204, width: 1669))
         .padding(0)
     }
 }
