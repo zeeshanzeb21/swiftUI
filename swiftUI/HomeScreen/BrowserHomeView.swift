@@ -7,7 +7,7 @@
 import SwiftUI
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
-    @State private var searchText: String = ""
+    @State var searchText: String = ""
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
     @State private var path: [Destination] = []
@@ -15,7 +15,7 @@ struct BrowserHomeView: View {
         case premium, settings, images , youtube , twich, wikipedia, pin, ebay, search, mic, clickSearch
     }
     enum Destination: Hashable {
-        case web
+        case web(searchText: String)
     }
     
     
@@ -175,7 +175,7 @@ struct BrowserHomeView: View {
                         .frame(width: 900, height: 80)
                         HStack(alignment: .center) {
                             Button(action: {
-                                path.append(.web)
+                                path.append(.web(searchText: searchText))
                             }) {
                                 Text("Search")
                                     .font(.system(size: 34, weight: .medium))
@@ -294,7 +294,7 @@ struct BrowserHomeView: View {
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
                 case .web:
-                    WebScreen()
+                    WebScreen(searchText: .constant(""))
                 }
             }
             .onAppear {

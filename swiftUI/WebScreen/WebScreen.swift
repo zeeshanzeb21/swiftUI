@@ -9,16 +9,18 @@ import SwiftUI
 
 struct WebScreen: View {
     @FocusState private var focusedButton: FocusableButton?
-    @State private var searchText: String = ""
+    @Binding var searchText: String
     @State private var placeholderText: String = "Search Here..."
     @State private var focusedIndex: Int? = nil
     @FocusState private var focusedField: FocusField?
+    @State private var start: Int = 0
+    @State private var limit: Int = 10
+
     enum FocusField: Hashable {
         case item(Int)
     }
-    
     enum FocusableButton {
-        case left,right,search,premium, settings,images,web, videos, news, shopping, list
+        case left,right,search,premium, settings,images,web, videos, news, shopping, list, loadMore, loadless
     }
     
     func isFocusedLeft() -> Bool {
@@ -55,26 +57,42 @@ struct WebScreen: View {
     func isFocusedList() -> Bool {
         focusedButton == .list
     }
+    func isFocusedLoadMore() -> Bool {
+        focusedButton == .loadMore
+    }
+    func isFocusedLoadless() -> Bool {
+        focusedButton == .loadless
+    }
     
-    @State private var selectedArticleID: UUID?
-        
-        let articles: [Article] = [
-            Article(sourceLogo: "bbc_logo", sourceName: "BBC",
-                    url: "https://www.bbc.com/travel/article/20250115-the-25-best-places-to-travel-in-2025",
-                    title: "The 25 best places to travel in 2025",
-                    description: "The 25 best places to travel in 2025 · 1. Dominica · 2. Naoshima, Japan · 3. The Dolomites, Italy · 4. Greenland · 5. Wales · 6. Western Newfoundland ..."),
-            Article(sourceLogo: "bbc_logo", sourceName: "BBC",
-                    url: "https://www.bbc.com/travel/article/20250115-the-25-best-places-to-travel-in-2025",
-                    title: "The 25 best places to travel in 2025",
-                    description: "Lonely Planet's Best in Travel celebrates 30 incredible destinations for 2025. Discover the top countries, regions and cities around the world, chosen by our ...")
-            ]
-    
+    @ObservedObject var viewModel = WebViewModel()
+    private var articleButtons: [(Int, DataModel)] {
+        Array(viewModel.searchData.enumerated())
+    }
     var body: some View {
         ZStack {
             Image("bgImage")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
+            
+            if viewModel.showLoading {
+                ZStack {
+                    Text("Please wait! we are fetching results")
+                        .foregroundColor(Color(hex: "#6A6767"))
+                        .font(.system(size: 35, weight: .regular))
+                        .padding(.top, 6)
+                        .padding(.leading, 10)
+                }
+            }
+            if viewModel.showLoading == false && viewModel.searchData.isEmpty {
+                ZStack {
+                    Text("Please wait! we are fetching results")
+                        .foregroundColor(Color(hex: "#6A6767"))
+                        .font(.system(size: 35, weight: .regular))
+                        .padding(.top, 6)
+                        .padding(.leading, 10)
+                }
+            }
             
             VStack(alignment: .leading) {
                 HStack(spacing: 0) {
@@ -279,78 +297,149 @@ struct WebScreen: View {
                     .focusSection()
                 ScrollView {
                     VStack(spacing: 20) {
-                        ForEach(Array(articles.enumerated()), id: \.offset) { index, article in
-                            Button(action: {
-                                // Handle selection
-                                print("Selected article at index \(index)")
-                            }) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack(alignment: .top, spacing: 12) {
-                                        Image("bbc")
-                                            .resizable()
-                                            .frame(width: 50, height: 50)
-                                            .cornerRadius(8)
-                                            .padding(.top, 32)
-                                            .padding(.leading, 30)
-
-                                        VStack(alignment: .leading, spacing: 0) {
-                                            Text("BBC")
-                                                .font(.system(size: 24, weight: .medium))
-                                                .foregroundColor(Color(hex: "#3C3B3B"))
-                                                .padding(.top, 30)
-
-                                            Text(article.url)
-                                                .font(.system(size: 18))
-                                                .foregroundColor(Color(hex: "#3C3B3B"))
+                        ForEach(articleButtons, id: \.0) { index, article in
+                            articleButtonView(index: index, article: article)
+                        }
+                        HStack{
+                            if !viewModel.searchData.isEmpty && start != 0 {
+                                Button(action: {
+                                    start = start - 10
+                                    limit = limit - 10
+                                    viewModel.getData(query: "cricket", searchType: "general", start: start, limit: limit)
+                                    print("start")
+                                    print(start)
+                                    print(limit)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            focusedField = .item(0)
                                         }
+                                    
+                                    
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Text("Previous Page")
+                                            .font(.system( size: 31,weight: .bold, design: .default))
+                                            .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                     }
-
-                                    Text(article.title)
-                                        .font(.system(size: 22, weight: .medium))
-                                        .foregroundColor(Color(hex: "#00759B"))
-                                        .padding(.leading, 30)
-
-                                    Text(article.description)
-                                        .font(.system(size: 20))
-                                        .foregroundColor(Color(hex: "#3C3B3B"))
-                                        .padding(.leading, 30)
-                                        .lineLimit(2)
                                 }
+                                .focused($focusedButton, equals: .loadless)
+                                .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
                             }
-                            .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index))
-                            .focused($focusedField, equals: .item(index))
-                            .onChange(of: focusedField) { oldValue, newValue in
-                                if case .item(let idx) = newValue {
-                                    focusedIndex = idx
+                            if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
+                                Button(action: {
+                                    start = limit
+                                    limit = limit + 10
+                                    viewModel.getData(query:  "cricket", searchType: "general", start: start, limit: limit)
+                                    print(start)
+                                    print(limit)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            focusedField = .item(0)
+                                        }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Text("Next Page")
+                                            .font(.system( size: 31,weight: .bold, design: .default))
+                                            .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                    }
                                 }
+                                .focused($focusedButton, equals: .loadMore)
+                                .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
                             }
                         }
+                    
                     }
                 }
-
-                
-                
-                
                 Spacer()
                 
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
+        }.onAppear{
+            focusedButton = .web
+                        viewModel.getData(query: "cricket", searchType: "general", start: start, limit: limit)
+                    }.alert("Error", isPresented: $viewModel.showAlert) {
+                        Button("OK", role: .cancel) {}
+                    } message: {
+                        Text(viewModel.chatListLoadingError)
+                    }
+        
+        }
+    
+    func base64ToImage(base64String: String) -> UIImage? {
+            let cleanedString: String
+            if let range = base64String.range(of: "base64,") {
+                cleanedString = String(base64String[range.upperBound...])
+            } else {
+                cleanedString = base64String
+            }
+            guard let imageData = Data(base64Encoded: cleanedString, options: .ignoreUnknownCharacters),
+                  let image = UIImage(data: imageData) else {
+                return nil
+            }
+
+            return image
+        }
+    
+    @ViewBuilder
+    private func articleButtonView(index: Int, article: DataModel) -> some View {
+        Button(action: {
+            print("Selected article at index \(index)")
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 12) {
+                    if let image = base64ToImage(base64String: article.image ?? "bbc") {
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: 62, height: 62)
+                            .cornerRadius(32)
+                            .padding(.top, 20)
+                            .padding(.leading, 26)
+                    } else {
+                        Color.red
+                            .frame(width: 62, height: 62)
+                            .cornerRadius(8)
+                            .padding(.top, 32)
+                            .padding(.leading, 30)
+                            .overlay(Text("Failed").foregroundColor(.white).font(.caption))
+                    }
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(article.title ?? "")
+                            .font(.system(size: 24, weight: .medium))
+                            .foregroundColor(Color(hex: "#3C3B3B"))
+                            .padding(.top, 26)
+
+                        Text(article.links ?? "")
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(hex: "#3C3B3B"))
+                    }
+                }
+
+                Text(article.heading ?? "")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundColor(Color(hex: "#00759B"))
+                    .padding(.leading, 30)
+                    .padding(.top, 4)
+
+            
+                Text(article.description ?? "")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: "#3C3B3B"))
+                    .padding(.leading, 30)
+                    .lineLimit(2)
+            }
+        }
+        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index))
+        .focused($focusedField, equals: .item(index))
+        .onChange(of: focusedField) { _, newValue in
+            if case .item(let idx) = newValue {
+                focusedIndex = idx
+            }
         }
     }
 
-}
+    }
 
 
-#Preview {
-    WebScreen()
-}
 
-struct Article: Identifiable {
-    let id = UUID()
-    let sourceLogo: String
-    let sourceName: String
-    let url: String
-    let title: String
-    let description: String
-}
+
+

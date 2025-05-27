@@ -3,7 +3,7 @@ import Combine
 import Alamofire
 
 protocol ServiceProtocol {
-    func fetchChats() -> AnyPublisher<DataResponse<Welcome, NetworkError>, Never>
+    func fetchData(query: String, searchType: String, start: Int, limit: Int) -> AnyPublisher<DataResponse<SearchModel, NetworkError>, Never>
 }
 
 
@@ -13,19 +13,31 @@ class Service {
 }
 
 extension Service: ServiceProtocol {
-    func fetchChats() -> AnyPublisher<DataResponse<Welcome, NetworkError>, Never> {
-        let url = URL(string: "https://dummyjson.com/products")!
+    func fetchData(query: String, searchType: String, start: Int, limit: Int) -> AnyPublisher<DataResponse<SearchModel, NetworkError>, Never> {
+        let url = URL(string: "https://app.fastbrowser.online/search")!
+        
+        let parameters: [String: String] = [
+            "query": query,
+            "searchType": searchType,
+            "start": "\(start)",
+            "limit": "\(limit)"
+        ]
+        print("parameters")
+        print(parameters)
         return AF.request(url,
-                          method: .get)
+                          method: .get,
+                          parameters: parameters,
+                          encoding: URLEncoding.default)
             .validate()
-            .publishDecodable(type: Welcome.self)
+            .publishDecodable(type: SearchModel.self)
             .map { response in
                 response.mapError { error in
-                    let backendError = response.data.flatMap { try? JSONDecoder().decode(BackendError.self, from: $0)}
+                    let backendError = response.data.flatMap { try? JSONDecoder().decode(BackendError.self, from: $0) }
                     return NetworkError(initialError: error, backendError: backendError)
                 }
             }
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-}
+    }
+    
