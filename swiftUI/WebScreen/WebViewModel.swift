@@ -29,7 +29,6 @@ class WebViewModel: ObservableObject {
                 } else {
                     self.searchData = dataResponse.value?.data ?? []
                     self.totalPages = dataResponse.value?.total ?? 0
-                    print(self.searchData)
                 }
             }
             .store(in: &cancellableSet)

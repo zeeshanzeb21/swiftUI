@@ -143,7 +143,6 @@ struct BrowserHomeView: View {
                                 Text(placeholderText)
                                     .foregroundColor(Color(hex: "#6A6767"))
                                     .font(.system(size: 35,weight: .medium))
-                                    .padding(.top, 6)
                             }
                             
                             if(focusedButton != .search)
@@ -151,13 +150,11 @@ struct BrowserHomeView: View {
                                 Text(searchText)
                                     .foregroundColor(Color.black)
                                     .font(.system(size: 35,weight: .medium))
-                                    .padding(.top, 6)
                             }
                             
                             TextField("Search Here...", text: $searchText)
                                 .font(.system(size: 35))
                                 .foregroundColor(.black)
-                                .padding(.top, 6)
                                 .padding(.leading, 0)
                                 .background(Color.clear)
                                 .textFieldStyle(.plain)

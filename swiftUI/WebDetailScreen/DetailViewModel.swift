@@ -8,13 +8,13 @@
 
 import Foundation
 import Combine
-class WebViewModel: ObservableObject {
+class DetailViewModel: ObservableObject {
     
-    @Published var searchData =  [DataModel]()
-    @Published var chatListLoadingError: String = ""
+    @Published var slices =  [String]()
     @Published var showAlert: Bool = false
     @Published var showLoading: Bool = false
-    @Published var totalPages: Int = 0
+    @Published var chatListLoadingError: String = ""
+
 
     private var cancellableSet: Set<AnyCancellable> = []
     var dataManager: ServiceProtocol
@@ -23,10 +23,10 @@ class WebViewModel: ObservableObject {
         self.dataManager = dataManager
     }
     
-    func getData(query: String, searchType: String, start: Int, limit: Int) {
+    func getScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) {
         self.showLoading = true
         
-        dataManager.fetchData(query: query, searchType: searchType, start: start, limit: limit)
+        dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 0, ss_height: 0)
             .sink { [weak self] dataResponse in
                 guard let self = self else { return }
                 
@@ -35,9 +35,8 @@ class WebViewModel: ObservableObject {
                 if let error = dataResponse.error {
                     self.createAlert(with: error)
                 } else {
-                    self.searchData = dataResponse.value?.data ?? []
-                    self.totalPages = dataResponse.value?.total ?? 0
-                    print(self.searchData)
+                    self.slices = dataResponse.value?.slices ?? []
+                    print("hejbfdh \(self.slices)")
                 }
             }
             .store(in: &cancellableSet)
