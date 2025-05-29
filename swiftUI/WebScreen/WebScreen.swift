@@ -16,6 +16,10 @@ struct WebScreen: View {
     @State private var start: Int = 0
     @State private var limit: Int = 10
     @State private var searchType : String = "general"
+    @State private var selectedURL: String?
+    @State private var isNavigated = false
+    @State private var link: String = ""
+
     
     enum FocusField: Hashable {
         case item(Int)
@@ -73,255 +77,263 @@ struct WebScreen: View {
     let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
     
     var body: some View {
-        ZStack {
-            Image("bgImage")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            if viewModel.showLoading == true{
-                ZStack {
-                    Text("Please wait! we are fetching results")
-                        .font(Font.custom("Saira-Bold", size: 35))
-                        .foregroundColor(Color(hex: "#3C3B3B"))
-                        .padding(.top, 6)
-                        .padding(.leading, 10)
-                }
-            }
-            
-            if searchType == "videos" || searchType == "news" || searchType == "shopping" {
-                ZStack {
-                    Text("Coming Soon !!!")
-                        .font(Font.custom("Saira-Bold", size: 70))
-                        .foregroundColor(Color(hex: "#3C3B3B"))
-                        .padding(.top, 6)
-                        .padding(.leading, 10)
+        NavigationStack{
+            ZStack {
+                Image("bgImage")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                
+                if viewModel.showLoading == true{
+                    ZStack {
+                        Text("Please wait! we are fetching results")
+                            .font(Font.custom("Saira-Bold", size: 35))
+                            .foregroundColor(Color(hex: "#3C3B3B"))
+                            .padding(.top, 6)
+                            .padding(.leading, 10)
+                    }
                 }
                 
-            }
-        
-            
-            VStack(alignment: .leading) {
-                HStack(spacing: 0) {
-                    Button(action: {
-                        print("Settings tapped")
-                    }) {
-                        Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
-                            .resizable()
-                            .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
-                            .padding(8)
+                
+                
+                if searchType == "videos" || searchType == "news" || searchType == "shopping" {
+                    ZStack {
+                        Text("Coming Soon !!!")
+                            .font(Font.custom("Saira-Bold", size: 70))
+                            .foregroundColor(Color(hex: "#3C3B3B"))
+                            .padding(.top, 6)
+                            .padding(.leading, 10)
                     }
-                    .focused($focusedButton, equals: .left)
-                    .buttonStyle(PremiumButton(
-                        isFocused: isFocusedLeft(),
-                        width: isFocusedLeft() ? 60 : 45,
-                        height: isFocusedLeft() ? 60 : 45,
-                        cornerRadius: isFocusedLeft() ? 30 : 23
-                    ))
                     
-                    Button(action: {
-                        print("Settings tapped")
-                    }) {
-                        Image(isFocusedRight() ? "right_focus" : "right_unfocus")
-                            .resizable()
-                            .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
-                            .padding(8)
-                    }
-                    .focused($focusedButton, equals: .right)
-                    .buttonStyle(PremiumButton(
-                        isFocused: isFocusedRight(),
-                        width: isFocusedRight() ? 60 : 45,
-                        height: isFocusedRight() ? 60 : 45,
-                        cornerRadius: isFocusedRight() ? 30 : 23
-                    ))
-                    .padding(.leading, 13)
-                    HStack(alignment: .top) {
-                        // Search bar
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 40)
-                                .fill(Color.white)
-                                .frame(width: 1050, height: 80)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .stroke(
-                                            isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-                                            lineWidth: 4
-                                        )
-                                )
-                            
-                            HStack(spacing: 0) {
-                                if searchText.isEmpty {
-                                    Text(placeholderText)
-                                        .foregroundColor(Color(hex: "#6A6767"))
-                                        .font(.system(size: 30, weight: .regular))
-                                        .padding(.leading, 10)
-                                }
-                                
-                                if focusedButton != .search {
-                                    Text(searchText)
-                                        .foregroundColor(Color(hex: "#6A6767"))
-                                        .font(.system(size: 30, weight: .regular))
-                                        .padding(.leading, 10)
-                                }
-                                
-                                TextField("Search Here...", text: $searchText)
-                                    .font(.system(size: 30, weight: .regular))
-                                    .foregroundColor(Color(hex: "#6A6767"))
-                                    .padding(.leading, 10)
-                                    .background(Color.clear)
-                                    .textFieldStyle(.plain)
-                                    .focused($focusedButton, equals: .search)
-                                    .onChange(of: focusedButton) { oldValue, newValue in
-                                        placeholderText = newValue == .search ? "" : "Search Here..."
-                                    }
-                            }
-                            .frame(width: 1000, height: 80)
+                }
+                
+                
+                VStack(alignment: .leading) {
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            print("Settings tapped")
+                        }) {
+                            Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
+                                .resizable()
+                                .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
+                                .padding(8)
                         }
+                        .focused($focusedButton, equals: .left)
+                        .buttonStyle(PremiumButton(
+                            isFocused: isFocusedLeft(),
+                            width: isFocusedLeft() ? 60 : 45,
+                            height: isFocusedLeft() ? 60 : 45,
+                            cornerRadius: isFocusedLeft() ? 30 : 23
+                        ))
                         
-                        HStack{
-                            Spacer()
-                            HStack(spacing: 16) {
-                                Button(action: {
-                                    print("Tapped")
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image("premium")
+                        Button(action: {
+                            print("Settings tapped")
+                        }) {
+                            Image(isFocusedRight() ? "right_focus" : "right_unfocus")
+                                .resizable()
+                                .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
+                                .padding(8)
+                        }
+                        .focused($focusedButton, equals: .right)
+                        .buttonStyle(PremiumButton(
+                            isFocused: isFocusedRight(),
+                            width: isFocusedRight() ? 60 : 45,
+                            height: isFocusedRight() ? 60 : 45,
+                            cornerRadius: isFocusedRight() ? 30 : 23
+                        ))
+                        .padding(.leading, 13)
+                        HStack(alignment: .top) {
+                            // Search bar
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 40)
+                                    .fill(Color.white)
+                                    .frame(width: 1050, height: 80)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 40)
+                                            .stroke(
+                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+                                                lineWidth: 4
+                                            )
+                                    )
+                                
+                                HStack(spacing: 0) {
+                                    if searchText.isEmpty {
+                                        Text(placeholderText)
+                                            .foregroundColor(Color(hex: "#6A6767"))
+                                            .font(.system(size: 30, weight: .regular))
+                                            .padding(.leading, 10)
+                                    }
+                                    
+                                    if focusedButton != .search {
+                                        Text(searchText)
+                                            .foregroundColor(Color(hex: "#6A6767"))
+                                            .font(.system(size: 30, weight: .regular))
+                                            .padding(.leading, 10)
+                                    }
+                                    
+                                    TextField("Search Here...", text: $searchText)
+                                        .font(.system(size: 30, weight: .regular))
+                                        .foregroundColor(Color(hex: "#6A6767"))
+                                        .padding(.leading, 10)
+                                        .background(Color.clear)
+                                        .textFieldStyle(.plain)
+                                        .focused($focusedButton, equals: .search)
+                                        .onChange(of: focusedButton) { oldValue, newValue in
+                                            placeholderText = newValue == .search ? "" : "Search Here..."
+                                        }
+                                }
+                                .frame(width: 1000, height: 80)
+                            }
+                            
+                            HStack{
+                                Spacer()
+                                HStack(spacing: 16) {
+                                    Button(action: {
+                                        print("Tapped")
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Image("premium")
+                                                .resizable()
+                                                .frame(width: 48, height: 48)
+                                                .padding(8)
+                                            Text("Premium")
+                                                .font(.system( size: 31,weight: .bold, design: .default))
+                                                .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                        }
+                                    }
+                                    .focused($focusedButton, equals: .premium)
+                                    .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260,height: 80, cornerRadius: 53))
+                                    Button(action: {
+                                        print("Settings tapped")
+                                    }) {
+                                        Image(isFocusedSetting() ? "setting_focus" : "setting")
                                             .resizable()
-                                            .frame(width: 48, height: 48)
+                                            .frame(width: 45, height: 45)
                                             .padding(8)
-                                        Text("Premium")
-                                            .font(.system( size: 31,weight: .bold, design: .default))
-                                            .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                     }
+                                    .focused($focusedButton, equals: .settings)
+                                    .buttonStyle(BorderedButtonStyle(isFocused: isFocusedSetting()))
                                 }
-                                .focused($focusedButton, equals: .premium)
-                                .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260,height: 80, cornerRadius: 53))
-                                Button(action: {
-                                    print("Settings tapped")
-                                }) {
-                                    Image(isFocusedSetting() ? "setting_focus" : "setting")
-                                        .resizable()
-                                        .frame(width: 45, height: 45)
-                                        .padding(8)
-                                }
-                                .focused($focusedButton, equals: .settings)
-                                .buttonStyle(BorderedButtonStyle(isFocused: isFocusedSetting()))
+                                .padding(.trailing, 0)
                             }
-                            .padding(.trailing, 0)
                         }
-                    }
-                    .frame(maxWidth: .infinity)
-                    
-                    
-                    .padding(.leading, 77)
-                }.focusSection()
-                    .padding(.leading, 0)
-                    .padding(.top, 10)
-                
-                HStack(spacing: 20) {
-                    Button(action: {
-                        searchType =  "general"
-                        start = 0
-                        limit = 10
-                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(isFocusedWeb() ?"web_focus": "web")
-                                .resizable()
-                                .frame(width: 26, height: 26)
-                                .padding(4)
-                            Text("Web")
-                                .font(.system(size: 28,weight: .medium,design: .default))
-                                .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79")).padding(4)
-                        }
-                    }
-                    .focused($focusedButton, equals: .web)
-                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
-                    Button(action: {
-                        searchType =  "isch"
-                        start = 0
-                        limit = 10
-                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(isFocusedImages() ? "images_focus": "images")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .padding(4)
-                            Text("Images")
-                                .font(.system(size: 28,weight: .medium,design: .default))
-                                .foregroundColor(isFocusedImages() ? .white : Color(hex: "#005C79")).padding(4)
-                        }
-                    }
-                    .focused($focusedButton, equals: .images)
-                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
-                    Button(action: {
-                        searchType = "videos"
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(isFocusedVideos() ? "video_focus"
-                                  :"video")
-                            .resizable()
-                            .frame(width: 33, height: 24)
-                            .padding(4)
-                            Text("Videos")
-                                .font(.system(size: 28,weight: .medium,design: .default))
-                                .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
-                        }
-                    }
-                    .focused($focusedButton, equals: .videos)
-                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
-                    Button(action: {
-                        searchType = "news"
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(isFocusedNews() ? "news_focus" :"news")
-                                .resizable()
-                                .frame(width: 28, height: 24)
-                                .padding(4)
-                            Text("News")
-                                .font(.system(size: 28,weight: .medium,design: .default))
-                                .foregroundColor(isFocusedNews() ? .white : Color(hex: "#005C79")).padding(4)
-                        }
-                    }
-                    .focused($focusedButton, equals: .news)
-                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
-                    Button(action: {
-                        searchType = "shopping"
+                        .frame(maxWidth: .infinity)
                         
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(isFocusedShopping() ? "shopping_focus" :"shopping")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                                .padding(4)
-                            Text("Shopping")
-                                .font(.system(size: 28,weight: .medium,design: .default))
-                                .foregroundColor(isFocusedShopping() ? .white : Color(hex: "#005C79")).padding(4)
+                        
+                        .padding(.leading, 77)
+                    }.focusSection()
+                        .padding(.leading, 0)
+                        .padding(.top, 10)
+                    
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            searchType =  "general"
+                            start = 0
+                            limit = 10
+                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(isFocusedWeb() ?"web_focus": "web")
+                                    .resizable()
+                                    .frame(width: 26, height: 26)
+                                    .padding(4)
+                                Text("Web")
+                                    .font(.system(size: 28,weight: .medium,design: .default))
+                                    .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79")).padding(4)
+                            }
                         }
-                    }
-                    .focused($focusedButton, equals: .shopping)
-                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedShopping(),height: 60, width: 255,cornerRadius: 30))
-                }.padding(.top, 4)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .focusSection()
-                if(searchType == "general" || searchType == "isch"){
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            if(searchType == "general" && viewModel.showLoading == false)
-                            {
-                                
-                                
-                                ForEach(articleButtons, id: \.0) { index, article in
-                                    articleButtonView(index: index, article: article)
+                        .focused($focusedButton, equals: .web)
+                        .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
+                        Button(action: {
+                            searchType =  "isch"
+                            start = 0
+                            limit = 10
+                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(isFocusedImages() ? "images_focus": "images")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .padding(4)
+                                Text("Images")
+                                    .font(.system(size: 28,weight: .medium,design: .default))
+                                    .foregroundColor(isFocusedImages() ? .white : Color(hex: "#005C79")).padding(4)
+                            }
+                        }
+                        .focused($focusedButton, equals: .images)
+                        .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
+                        Button(action: {
+                            searchType = "videos"
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(isFocusedVideos() ? "video_focus"
+                                      :"video")
+                                .resizable()
+                                .frame(width: 33, height: 24)
+                                .padding(4)
+                                Text("Videos")
+                                    .font(.system(size: 28,weight: .medium,design: .default))
+                                    .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
+                            }
+                        }
+                        .focused($focusedButton, equals: .videos)
+                        .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
+                        Button(action: {
+                            searchType = "news"
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(isFocusedNews() ? "news_focus" :"news")
+                                    .resizable()
+                                    .frame(width: 28, height: 24)
+                                    .padding(4)
+                                Text("News")
+                                    .font(.system(size: 28,weight: .medium,design: .default))
+                                    .foregroundColor(isFocusedNews() ? .white : Color(hex: "#005C79")).padding(4)
+                            }
+                        }
+                        .focused($focusedButton, equals: .news)
+                        .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
+                        Button(action: {
+                            searchType = "shopping"
+                            
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(isFocusedShopping() ? "shopping_focus" :"shopping")
+                                    .resizable()
+                                    .frame(width: 25, height: 25)
+                                    .padding(4)
+                                Text("Shopping")
+                                    .font(.system(size: 28,weight: .medium,design: .default))
+                                    .foregroundColor(isFocusedShopping() ? .white : Color(hex: "#005C79")).padding(4)
+                            }
+                        }
+                        .focused($focusedButton, equals: .shopping)
+                        .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedShopping(),height: 60, width: 255,cornerRadius: 30))
+                    }.padding(.top, 4)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .focusSection()
+                    if(searchType == "general" || searchType == "isch"){
+                        ScrollView {
+                            VStack(spacing: 20) {
+                                if(searchType == "general" && viewModel.showLoading == false)
+                                {
+                                    
+                                    
+                                    ForEach(articleButtons, id: \.0) { index, article in
+                                        articleButtonView(index: index, article: article) {
+                                            isNavigated = true
+                                            
+                                        }
+                                    }
+                                    
+                                    
+                                    
                                 }
                                 
-                            }
-                            
-                            else if(searchType == "isch" && viewModel.showLoading == false)
-                            {
-                                
-                                HStack {
+                                else if(searchType == "isch" && viewModel.showLoading == false)
+                                {
+                                    
+                                    HStack {
                                         Text("Search Results")
                                             .foregroundColor(Color(hex: "#5F6368"))
                                             .font(.system(size: 28, weight: .regular))
@@ -329,79 +341,83 @@ struct WebScreen: View {
                                     }
                                     .padding(.leading, 26)
                                     .frame(maxWidth: .infinity)
-                    
-                                LazyVGrid(columns: columns, spacing: 16) {
-                                    ForEach(articleButtons, id: \.0) { index, article in
-                                        articleImageView(index: index, article: article)
-                                            .frame(width: 430, height: 460)
-                                            .background(Color.white)
-                                            .cornerRadius(20)
+                                    
+                                    LazyVGrid(columns: columns, spacing: 16) {
+                                        ForEach(articleButtons, id: \.0) { index, article in
+                                            articleImageView(index: index, article: article)
+                                                .frame(width: 430, height: 460)
+                                                .background(Color.white)
+                                                .cornerRadius(20)
+                                        }
+                                    }
+                                    .padding()
+                                }
+                                HStack{
+                                    if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
+                                        Button(action: {
+                                            start = start - 10
+                                            limit = limit - 10
+                                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                                            print("start")
+                                            print(start)
+                                            print(limit)
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                focusedField = .item(0)
+                                            }
+                                            
+                                            
+                                        }) {
+                                            HStack(spacing: 8) {
+                                                Text("Previous Page")
+                                                    .font(.system( size: 31,weight: .bold, design: .default))
+                                                    .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                            }
+                                        }
+                                        .focused($focusedButton, equals: .loadless)
+                                        .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
+                                    }
+                                    if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
+                                        Button(action: {
+                                            start = limit
+                                            limit = limit + 10
+                                            viewModel.getData(query:  "cricket", searchType: searchType, start: start, limit: limit)
+                                            print(start)
+                                            print(limit)
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                focusedField = .item(0)
+                                            }
+                                        }) {
+                                            HStack(spacing: 8) {
+                                                Text("Next Page")
+                                                    .font(.system( size: 31,weight: .bold, design: .default))
+                                                    .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                            }
+                                        }
+                                        .focused($focusedButton, equals: .loadMore)
+                                        .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
                                     }
                                 }
-                                .padding()
+                                
                             }
-                            HStack{
-                                if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
-                                    Button(action: {
-                                        start = start - 10
-                                        limit = limit - 10
-                                        viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
-                                        print("start")
-                                        print(start)
-                                        print(limit)
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                            focusedField = .item(0)
-                                        }
-                                        
-                                        
-                                    }) {
-                                        HStack(spacing: 8) {
-                                            Text("Previous Page")
-                                                .font(.system( size: 31,weight: .bold, design: .default))
-                                                .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
-                                        }
-                                    }
-                                    .focused($focusedButton, equals: .loadless)
-                                    .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
-                                }
-                                if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
-                                    Button(action: {
-                                        start = limit
-                                        limit = limit + 10
-                                        viewModel.getData(query:  "cricket", searchType: searchType, start: start, limit: limit)
-                                        print(start)
-                                        print(limit)
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                            focusedField = .item(0)
-                                        }
-                                    }) {
-                                        HStack(spacing: 8) {
-                                            Text("Next Page")
-                                                .font(.system( size: 31,weight: .bold, design: .default))
-                                                .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
-                                        }
-                                    }
-                                    .focused($focusedButton, equals: .loadMore)
-                                    .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
-                                }
-                            }
-                            
                         }
                     }
+                    Spacer()
+                    
                 }
-                Spacer()
-                
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }.onAppear{
+                focusedButton = .web
+                viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+            }.navigationDestination(isPresented: $isNavigated) {
+                WebDetailScreen(searchedTxt: link)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            
-        }.onAppear{
-            focusedButton = .web
-            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
-        }.alert("Error", isPresented: $viewModel.showAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(viewModel.chatListLoadingError)
+            .alert("Error", isPresented: $viewModel.showAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(viewModel.chatListLoadingError)
+            }
         }
+        
         
     }
     
@@ -421,9 +437,11 @@ struct WebScreen: View {
     }
     
     @ViewBuilder
-    private func articleButtonView(index: Int, article: DataModel) -> some View {
+    private func articleButtonView(index: Int, article: DataModel,onTap: @escaping () -> Void) -> some View {
         Button(action: {
             print("Selected article at index \(index)")
+            link = article.links ?? ""
+            onTap()
         }) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 12) {
@@ -469,7 +487,7 @@ struct WebScreen: View {
                     .lineLimit(2)
             }
         }
-        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 204, width: 1669))
+        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 204, width: 1669,selectedColor: Color(hex: "#005C79")))
         .focused($focusedField, equals: .item(index))
         .onChange(of: focusedField) { _, newValue in
             if case .item(let idx) = newValue {
@@ -531,7 +549,7 @@ struct WebScreen: View {
                 Spacer()
             }
         }
-        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 460, width: 430))
+        .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 460, width: 430,selectedColor: Color(hex: "#00759B")))
         .focused($focusedField, equals: .item(index))
         .onChange(of: focusedField) { _, newValue in
             if case .item(let idx) = newValue {
@@ -543,6 +561,4 @@ struct WebScreen: View {
     
     
 }
-
-
 

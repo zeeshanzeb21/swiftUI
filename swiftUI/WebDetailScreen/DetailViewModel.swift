@@ -11,6 +11,7 @@ import Combine
 class DetailViewModel: ObservableObject {
     
     @Published var slices =  [String]()
+    @Published var basePath =  ""
     @Published var showAlert: Bool = false
     @Published var showLoading: Bool = false
     @Published var chatListLoadingError: String = ""
@@ -26,7 +27,7 @@ class DetailViewModel: ObservableObject {
     func getScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) {
         self.showLoading = true
         
-        dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 0, ss_height: 0)
+        dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 1920, ss_height: 100)
             .sink { [weak self] dataResponse in
                 guard let self = self else { return }
                 
@@ -35,8 +36,10 @@ class DetailViewModel: ObservableObject {
                 if let error = dataResponse.error {
                     self.createAlert(with: error)
                 } else {
-                    self.slices = dataResponse.value?.slices ?? []
-                    print("hejbfdh \(self.slices)")
+                    let basePath = dataResponse.value?.basePath ?? ""
+                    let rawSlices = dataResponse.value?.slices ?? []
+                    self.slices = rawSlices.map { "\(basePath)\($0)" }
+                    print("slices\(self.slices)")
                 }
             }
             .store(in: &cancellableSet)

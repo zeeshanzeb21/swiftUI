@@ -45,18 +45,18 @@ extension Service: ServiceProtocol {
     func fetchScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) -> AnyPublisher<DataResponse<ScreenShotModel, NetworkError>, Never> {
         let url = URL(string: "https://app.fastbrowser.online/screenshot/")!
         
-        let parameters: [String: String] = [
+        let parameters: [String: Any] = [
             "url": urls,
-            "ux_type": "\(ux_type)",
-            "ss_width": "\(ss_width)",
-            "ss_height": "\(ss_height)"
+            "ux_type": ux_type,
+            "ss_width": ss_width,
+            "ss_height": ss_height
         ]
         print("parameters")
         print(parameters)
         return AF.request(url,
-                          method: .get,
+                          method: .post,
                           parameters: parameters,
-                          encoding: URLEncoding.default)
+                          encoding: JSONEncoding.default)
             .validate()
             .publishDecodable(type: ScreenShotModel.self)
             .map { response in

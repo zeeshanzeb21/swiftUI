@@ -58,8 +58,11 @@ struct BrowserHomeView: View {
         focusedButton == .clickSearch
     }
     
+    @State private var isNavigating = false
+
+    
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack{
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -172,7 +175,7 @@ struct BrowserHomeView: View {
                         .frame(width: 900, height: 80)
                         HStack(alignment: .center) {
                             Button(action: {
-                                path.append(.web(searchText: searchText))
+                                isNavigating = true
                             }) {
                                 Text("Search")
                                     .font(.system(size: 34, weight: .medium))
@@ -287,16 +290,10 @@ struct BrowserHomeView: View {
                     Spacer()
                     
                 }
-            }
-            .navigationDestination(for: Destination.self) { destination in
-                switch destination {
-                case .web:
-                    WebScreen(searchText: "")
-                }
-            }
-            .onAppear {
+            }.onAppear {
                 focusedButton = .premium
-                
+            }.navigationDestination(isPresented: $isNavigating) {
+                WebScreen(searchText: "")
             }
             .onMoveCommand { direction in
                 switch (focusedButton, direction) {

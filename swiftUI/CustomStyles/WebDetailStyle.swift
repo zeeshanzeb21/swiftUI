@@ -1,4 +1,12 @@
 //
+//  ListButtonStyle.swift
+//  swiftUI
+//
+//  Created by Invicttus on 29/05/2025.
+//
+
+
+//
 //  ListButtons.swift
 //  swiftUI
 //
@@ -7,30 +15,16 @@
 
 import SwiftUI
 
-struct ListButtonStyle: ButtonStyle {
-    var isFocused: Bool
-    var height: CGFloat
-    var width: CGFloat
-    var selectedColor: Color
+struct WebDetailStyle: ButtonStyle {
+    
     func makeBody(configuration: Configuration) -> some View {
            configuration.label
-               .padding(EdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0))
-               .frame(width: width, height: height, alignment: .topLeading)
-               .background(Color.white)
-               .overlay(
-                   RoundedRectangle(cornerRadius: 20)
-                       .stroke(
-                           isFocused ? selectedColor : Color(hex: "#E3E3E4").opacity(0.7),
-                           lineWidth: 8
-                       )
-               )
-               .cornerRadius(20)
-               .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-               .padding(.horizontal, 16) // external spacing between cards
+               
+
        }
 }
 
-struct ListButtonStyle_Previews: PreviewProvider {
+struct WebDetailStyle_Previews: PreviewProvider {
     static var previews: some View {
         Button(action: {
             // Your tap action
@@ -86,12 +80,3 @@ struct ListButtonStyle_Previews: PreviewProvider {
     }
 }
    
-struct ItemFramePreferenceKey: PreferenceKey {
-    typealias Value = [Int: CGFloat]
-
-    static var defaultValue: [Int: CGFloat] = [:]
-
-    static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
-        value.merge(nextValue(), uniquingKeysWith: { $1 })
-    }
-}
