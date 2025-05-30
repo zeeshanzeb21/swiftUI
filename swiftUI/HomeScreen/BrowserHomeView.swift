@@ -10,15 +10,9 @@ struct BrowserHomeView: View {
     @State var searchText: String = ""
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
-    @State private var path: [Destination] = []
     enum FocusableButton {
         case premium, settings, images , youtube , twich, wikipedia, pin, ebay, search, mic, clickSearch
     }
-    enum Destination: Hashable {
-        case web(searchText: String)
-    }
-    
-    
     func isFocusedPremium() -> Bool {
         focusedButton == .premium
     }
@@ -58,11 +52,11 @@ struct BrowserHomeView: View {
         focusedButton == .clickSearch
     }
     
-    @State private var isNavigating = false
-
+    @State private var path: [Route] = []
+    
     
     var body: some View {
-        NavigationStack{
+        NavigationStack(path: $path) {
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -174,8 +168,9 @@ struct BrowserHomeView: View {
                         
                         .frame(width: 900, height: 80)
                         HStack(alignment: .center) {
+                        
                             Button(action: {
-                                isNavigating = true
+                                path.append(.web(url: "https://apple.com"))
                             }) {
                                 Text("Search")
                                     .font(.system(size: 34, weight: .medium))
@@ -292,8 +287,14 @@ struct BrowserHomeView: View {
                 }
             }.onAppear {
                 focusedButton = .premium
-            }.navigationDestination(isPresented: $isNavigating) {
-                WebScreen(searchText: "")
+            }.navigationDestination(for: Route.self) { route in
+                switch route {
+                case .web(let url):
+                    WebScreen(searchText: url, path: $path)
+                case .webDetail(let url):
+                    WebDetailScreen(searchText: url)
+                    
+                }
             }
             .onMoveCommand { direction in
                 switch (focusedButton, direction) {
@@ -310,8 +311,8 @@ struct BrowserHomeView: View {
             
         }
     }
-        
-    }
+}
+    
 #Preview {
     BrowserHomeView()
 }

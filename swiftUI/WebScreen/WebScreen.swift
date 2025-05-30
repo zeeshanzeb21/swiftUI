@@ -19,7 +19,7 @@ struct WebScreen: View {
     @State private var selectedURL: String?
     @State private var isNavigated = false
     @State private var link: String = ""
-
+    
     
     enum FocusField: Hashable {
         case item(Int)
@@ -76,8 +76,11 @@ struct WebScreen: View {
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
     
+    @Binding var path: [Route]
+
+    
     var body: some View {
-        NavigationStack{
+        NavigationStack(path: $path) {
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -230,7 +233,7 @@ struct WebScreen: View {
                             searchType =  "general"
                             start = 0
                             limit = 10
-                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                            viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
                                 Image(isFocusedWeb() ?"web_focus": "web")
@@ -248,7 +251,7 @@ struct WebScreen: View {
                             searchType =  "isch"
                             start = 0
                             limit = 10
-                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                            viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
                                 Image(isFocusedImages() ? "images_focus": "images")
@@ -317,15 +320,11 @@ struct WebScreen: View {
                             VStack(spacing: 20) {
                                 if(searchType == "general" && viewModel.showLoading == false)
                                 {
-                                    
-                                    
                                     ForEach(articleButtons, id: \.0) { index, article in
                                         articleButtonView(index: index, article: article) {
-                                            isNavigated = true
-                                            
+                                            path.append(.webDetail(url: searchText + "/detail"))
                                         }
                                     }
-                                    
                                     
                                     
                                 }
@@ -357,7 +356,7 @@ struct WebScreen: View {
                                         Button(action: {
                                             start = start - 10
                                             limit = limit - 10
-                                            viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
+                                            viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                                             print("start")
                                             print(start)
                                             print(limit)
@@ -380,7 +379,7 @@ struct WebScreen: View {
                                         Button(action: {
                                             start = limit
                                             limit = limit + 10
-                                            viewModel.getData(query:  "cricket", searchType: searchType, start: start, limit: limit)
+                                            viewModel.getData(query:  searchText, searchType: searchType, start: start, limit: limit)
                                             print(start)
                                             print(limit)
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -405,20 +404,18 @@ struct WebScreen: View {
                     
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }.onAppear{
+            }
+            .onAppear{
                 focusedButton = .web
-                viewModel.getData(query: "cricket", searchType: searchType, start: start, limit: limit)
-            }.navigationDestination(isPresented: $isNavigated) {
-                WebDetailScreen(searchedTxt: link)
+                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.chatListLoadingError)
             }
+            
         }
-        
-        
     }
     
     func base64ToImage(base64String: String) -> UIImage? {

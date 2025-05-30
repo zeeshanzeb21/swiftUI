@@ -6,6 +6,8 @@ protocol ServiceProtocol {
     func fetchData(query: String, searchType: String, start: Int, limit: Int) -> AnyPublisher<DataResponse<SearchModel, NetworkError>, Never>
     
     func fetchScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) -> AnyPublisher<DataResponse<ScreenShotModel, NetworkError>, Never>
+    
+    func fetchInternalLinks(urls: String) -> AnyPublisher<DataResponse<InternalLinksModel, NetworkError>, Never>
 }
 
 
@@ -59,6 +61,30 @@ extension Service: ServiceProtocol {
                           encoding: JSONEncoding.default)
             .validate()
             .publishDecodable(type: ScreenShotModel.self)
+            .map { response in
+                response.mapError { error in
+                    let backendError = response.data.flatMap { try? JSONDecoder().decode(BackendError.self, from: $0) }
+                    return NetworkError(initialError: error, backendError: backendError)
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchInternalLinks(urls: String) -> AnyPublisher<DataResponse<InternalLinksModel, NetworkError>, Never> {
+        let url = URL(string: "https://app.fastbrowser.online/links/")!
+        
+        let parameters: [String: String] = [
+            "url": "\(urls)"
+        ]
+        print("parameters")
+        print(parameters)
+        return AF.request(url,
+                          method: .post,
+                          parameters: parameters,
+                          encoding: JSONEncoding.default)
+            .validate()
+            .publishDecodable(type: InternalLinksModel.self)
             .map { response in
                 response.mapError { error in
                     let backendError = response.data.flatMap { try? JSONDecoder().decode(BackendError.self, from: $0) }

@@ -11,6 +11,7 @@ import Combine
 class DetailViewModel: ObservableObject {
     
     @Published var slices =  [String]()
+    @Published var links = [Link]()
     @Published var basePath =  ""
     @Published var showAlert: Bool = false
     @Published var showLoading: Bool = false
@@ -40,6 +41,25 @@ class DetailViewModel: ObservableObject {
                     let rawSlices = dataResponse.value?.slices ?? []
                     self.slices = rawSlices.map { "\(basePath)\($0)" }
                     print("slices\(self.slices)")
+                }
+            }
+            .store(in: &cancellableSet)
+    }
+    
+    func getInternalLinks(url: String) {
+        self.showLoading = true
+        
+        dataManager.fetchInternalLinks(urls: url)
+            .sink { [weak self] dataResponse in
+                guard let self = self else { return }
+                
+                self.showLoading = false
+                
+                if let error = dataResponse.error {
+                    self.createAlert(with: error)
+                } else {
+                    self.links = dataResponse.value?.links ?? []
+                    print("links\(self.links)")
                 }
             }
             .store(in: &cancellableSet)
