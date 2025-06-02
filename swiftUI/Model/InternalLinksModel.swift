@@ -12,7 +12,7 @@ struct InternalLinksModel: Codable {
 }
 
 // MARK: - Link
-struct Link: Codable {
+struct Link: Codable, Hashable {
     let href: String?
     let text: String?
 }

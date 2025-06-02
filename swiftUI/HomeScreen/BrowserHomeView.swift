@@ -7,6 +7,7 @@
 import SwiftUI
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
+
     @State var searchText: String = ""
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
@@ -51,9 +52,11 @@ struct BrowserHomeView: View {
     func isFocusedSearchClicked() -> Bool {
         focusedButton == .clickSearch
     }
+        @State private var showSettingsPopup = false
     
-    @State private var path: [Route] = []
-    
+    @State private var path = NavigationPath()
+
+
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -94,6 +97,8 @@ struct BrowserHomeView: View {
                                 .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260,height: 80, cornerRadius: 53))
                                 Button(action: {
                                     print("Settings tapped")
+                                    showSettingsPopup = true
+                                    
                                 }) {
                                     Image(isFocusedSetting() ? "setting_focus" : "setting")
                                         .resizable()
@@ -170,7 +175,7 @@ struct BrowserHomeView: View {
                         HStack(alignment: .center) {
                         
                             Button(action: {
-                                path.append(.web(url: "https://apple.com"))
+                               
                             }) {
                                 Text("Search")
                                     .font(.system(size: 34, weight: .medium))
@@ -234,6 +239,7 @@ struct BrowserHomeView: View {
                         .focused($focusedButton, equals: .twich)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedTwich(),height: 105, width: 350,cornerRadius: 53))
                     }.padding(.top, 47)
+                        .focusSection()
                     
                     HStack(spacing: 40) {
                         Button(action: {
@@ -282,29 +288,38 @@ struct BrowserHomeView: View {
                         .focused($focusedButton, equals: .pin)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedPin(),height: 105, width: 350,cornerRadius: 53))
                     }.padding(.top, 10)
+                        .focusSection()
                     Spacer()
                     
                 }
+                if showSettingsPopup {
+                    SettingsPopupView(
+                        onClose: {
+                            showSettingsPopup = false
+                        },
+                        navigationPath: $path
+                    )
+                    .onDisappear {
+                        focusedButton = .settings
+                    }
+                    .transition(.opacity.combined(with: .scale))
+                    .zIndex(100)
+                }
             }.onAppear {
                 focusedButton = .premium
-            }.navigationDestination(for: Route.self) { route in
-                switch route {
-                case .web(let url):
-                    WebScreen(searchText: url, path: $path)
-                case .webDetail(let url):
-                    WebDetailScreen(searchText: url)
-                    
+            }.navigationDestination(for: SettingsPopupView.FocusableButton.self) { button in
+                switch button {
+                case .howToUse:
+                    HowToUseScreen()
+                default:
+                    EmptyView()
                 }
             }
             .onMoveCommand { direction in
                 switch (focusedButton, direction) {
-                case (.premium, .down):
-                    focusedButton = .search
-                case (.settings, .down):
-                    focusedButton = .search
-                default :
-                    break
-                }
+                    default:
+                        break
+                    }
                 
             }
             

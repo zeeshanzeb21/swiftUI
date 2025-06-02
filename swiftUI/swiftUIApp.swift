@@ -12,7 +12,8 @@ import Alamofire
 struct swiftUIApp: App {
     var body: some Scene {
         WindowGroup {
-            WebDetailScreen(searchText: "")
+            BrowserHomeView(searchText: "")
         }
+
     }
 }

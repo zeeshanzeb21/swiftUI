@@ -51,7 +51,6 @@ struct RemoteImageView: View {
                 if let uiImage = loader.image {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .frame(height: placeholderHeight)
                         .frame(maxWidth: .infinity)
                 } else {
                     Color.gray

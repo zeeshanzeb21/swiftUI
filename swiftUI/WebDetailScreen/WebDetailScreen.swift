@@ -7,6 +7,7 @@ struct WebDetailScreen: View {
     @FocusState private var focusedField: FocusField?
     @State var searchText: String
     @State private var showLinkList = false
+
     private var interalLinks: [(Int, Link)] {
         Array(viewModel.links.enumerated())
     }
@@ -26,64 +27,86 @@ struct WebDetailScreen: View {
     func isFocusedPremium() -> Bool { focusedButton == .premium }
     func isFocusedSetting() -> Bool { focusedButton == .settings }
     func isFocusedLink() -> Bool { focusedButton == .link }
+    
+    @State private var path = NavigationPath()
+    @Environment(\.dismiss) private var dismiss
+
+    
+
+    
 
     var body: some View {
-        ZStack {
-            Image("bgImage")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-
-            if viewModel.showLoading {
-                Text("Please wait! we are fetching results")
-                    .font(Font.custom("Saira-Bold", size: 35))
-                    .foregroundColor(Color(hex: "#3C3B3B"))
-                    .padding(.top, 6)
-            }
-
-            VStack(alignment: .leading) {
-                topBar
-                contentArea
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .onChange(of: focusedField) { oldValue, newFocus in
-            switch newFocus {
-            
-            case .item(let index):
-                print(index)
-                if index == 0 || index == viewModel.links.count - 1 {
-                    showLinkList = false
-                    focusedButton = .list
+        NavigationStack(path: $path) {
+            ZStack {
+                Image("bgImage")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                
+                if viewModel.showLoading {
+                    Text("Please wait! we are fetching results")
+                        .font(Font.custom("Saira-Bold", size: 35))
+                        .foregroundColor(Color(hex: "#3C3B3B"))
+                        .padding(.top, 6)
                 }
-            default:
-                break
+                
+                VStack(alignment: .leading) {
+                    topBar
+                    contentArea
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-        }
-        .onMoveCommand { direction in
-            switch (focusedButton, direction) {
-            case (.list, .left):
-                focusedButton = .link
-            default:
-                break
+            .onChange(of: focusedField) { oldValue, newFocus in
+                switch newFocus {
+                    
+                case .item(let index):
+                    print(index)
+                    if index == 0 || index == viewModel.links.count - 1 {
+                        showLinkList = false
+                        focusedButton = .list
+                    }
+                default:
+                    break
+                }
             }
-        }
-
-        .onAppear {
-            viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
-            viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
-        }
-        .alert("Error", isPresented: $viewModel.showAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(viewModel.chatListLoadingError)
+            .onMoveCommand { direction in
+                switch (focusedButton, direction) {
+                case (.link, .left):
+                    focusedButton = .list
+                default:
+                    break
+                }
+            }
+            
+            .onAppear {
+                if(searchText == "")
+                {
+                    print("hellooo")
+                    viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
+                    viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
+                }
+                else
+                {
+                    viewModel.getScreenShots(urls: searchText, ux_type: 1, ss_width: 0, ss_height: 0)
+                    viewModel.getInternalLinks(url: searchText)
+                }
+                
+            }
+            .alert("Error", isPresented: $viewModel.showAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(viewModel.chatListLoadingError)
+            }.navigationDestination(for: Link.self) { link in
+                WebDetailScreen(searchText: link.href ?? "")
+            }
         }
     }
 
     private var topBar: some View {
         HStack(spacing: 0) {
-            // Left Button
-            Button(action: { print("Left tapped") }) {
+            Button(action: { print("Left tapped")
+                dismiss()
+            }) {
                 Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
                     .resizable()
                     .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
@@ -253,9 +276,7 @@ struct WebDetailScreen: View {
 
     @ViewBuilder
     private func listView(index: Int, links: Link) -> some View {
-        Button(action: {
-            print("Link \(index) tapped")
-        }) {
+        NavigationLink(value: links)  {
             Text(links.text ?? "")
                 .font(.system(size: 25, weight: .medium))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -270,15 +291,6 @@ struct WebDetailScreen: View {
         .onChange(of: focusedField) { oldValue, newValue in
             if case .item(let idx) = newValue {
                 focusedIndex = idx
-                print("Focused: \(idx)")
-            }
-        }
-        .onMoveCommand { direction in
-            switch direction {
-            case .left:
-                focusedButton = .link
-            default:
-                break
             }
         }
     }
