@@ -54,8 +54,9 @@ struct SettingsPopupView: View {
             case .howToUse:
                 navigationPath.append(focus)
                 onClose()
-            default:
-                break
+            case .rateUs:
+                navigationPath.append(focus)
+                onClose()
             }
         }) {
             VStack {

@@ -311,6 +311,8 @@ struct BrowserHomeView: View {
                 switch button {
                 case .howToUse:
                     HowToUseScreen()
+                case .rateUs:
+                    RateUs(navigationPath: $path)
                 default:
                     EmptyView()
                 }
