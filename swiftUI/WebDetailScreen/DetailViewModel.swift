@@ -15,6 +15,8 @@ class DetailViewModel: ObservableObject {
     @Published var basePath =  ""
     @Published var showAlert: Bool = false
     @Published var showLoading: Bool = false
+    @Published var showLoadingSS: Bool = false
+
     @Published var chatListLoadingError: String = ""
 
 
@@ -26,6 +28,8 @@ class DetailViewModel: ObservableObject {
     }
     
     func getScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) {
+        
+       
         self.showLoading = true
         
         dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 1920, ss_height: 100)
@@ -47,13 +51,13 @@ class DetailViewModel: ObservableObject {
     }
     
     func getInternalLinks(url: String) {
-        self.showLoading = true
+        self.showLoadingSS = true
         
         dataManager.fetchInternalLinks(urls: url)
             .sink { [weak self] dataResponse in
                 guard let self = self else { return }
                 
-                self.showLoading = false
+                self.showLoadingSS = false
                 
                 if let error = dataResponse.error {
                     self.createAlert(with: error)

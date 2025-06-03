@@ -11,7 +11,9 @@ struct BrowserHomeView: View {
     @State var searchText: String = ""
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
-    enum FocusableButton {
+    @State private var showError: Bool = false
+
+    enum FocusableButton: Hashable {
         case premium, settings, images , youtube , twich, wikipedia, pin, ebay, search, mic, clickSearch
     }
     func isFocusedPremium() -> Bool {
@@ -122,10 +124,13 @@ struct BrowserHomeView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 40)
                                     .stroke(
-                                        isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+                                        showError
+                                            ? Color.red
+                                            : (isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4")),
                                         lineWidth: 4
                                     )
                             )
+
                         
                         HStack(spacing: 0) {
                             // Mic button
@@ -164,6 +169,7 @@ struct BrowserHomeView: View {
                                 .onChange(of: focusedButton) { oldValue, newValue in
                                     if newValue == .search {
                                         placeholderText = ""
+                                        showError = false
                                     } else {
                                         placeholderText = "Search Here..."
                                     }
@@ -173,9 +179,17 @@ struct BrowserHomeView: View {
                         
                         .frame(width: 900, height: 80)
                         HStack(alignment: .center) {
-                        
+                            
                             Button(action: {
-                               
+                                if(searchText.isEmpty == false)
+                                {
+                                    path.append(FocusableButton.clickSearch)
+
+                                }
+                                else
+                                {
+                                    showError = true
+                                }
                             }) {
                                 Text("Search")
                                     .font(.system(size: 34, weight: .medium))
@@ -313,6 +327,14 @@ struct BrowserHomeView: View {
                     HowToUseScreen()
                 case .rateUs:
                     RateUs(navigationPath: $path)
+                default:
+                    EmptyView()
+                }
+            }
+            .navigationDestination(for: FocusableButton.self) { button in
+                switch button {
+                case .clickSearch:
+                    WebScreen(searchText: searchText, navigationPath: $path, viewID: UUID())
                 default:
                     EmptyView()
                 }

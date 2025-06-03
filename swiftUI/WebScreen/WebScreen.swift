@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct WebScreen: View {
+    @Environment(\.dismiss) var dismiss
     @FocusState private var focusedButton: FocusableButton?
     @State  var searchText: String
     @State private var placeholderText: String = "Search Here..."
@@ -76,11 +77,12 @@ struct WebScreen: View {
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
     
-    @Binding var path: [Route]
+    @Binding var navigationPath: NavigationPath
+    
+    let viewID: UUID // Add this
 
     
     var body: some View {
-        NavigationStack(path: $path) {
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -115,6 +117,7 @@ struct WebScreen: View {
                     HStack(spacing: 0) {
                         Button(action: {
                             print("Settings tapped")
+                            dismiss()
                         }) {
                             Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
                                 .resizable()
@@ -160,13 +163,6 @@ struct WebScreen: View {
                                     )
                                 
                                 HStack(spacing: 0) {
-                                    if searchText.isEmpty {
-                                        Text(placeholderText)
-                                            .foregroundColor(Color(hex: "#6A6767"))
-                                            .font(.system(size: 30, weight: .regular))
-                                            .padding(.leading, 10)
-                                    }
-                                    
                                     if focusedButton != .search {
                                         Text(searchText)
                                             .foregroundColor(Color(hex: "#6A6767"))
@@ -322,7 +318,7 @@ struct WebScreen: View {
                                 {
                                     ForEach(articleButtons, id: \.0) { index, article in
                                         articleButtonView(index: index, article: article) {
-                                            path.append(.webDetail(url: searchText + "/detail"))
+                                            //path.append(.webDetail(url: searchText + "/detail"))
                                         }
                                     }
                                     
@@ -375,7 +371,7 @@ struct WebScreen: View {
                                         .focused($focusedButton, equals: .loadless)
                                         .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
                                     }
-                                    if (viewModel.searchData.isEmpty && viewModel.showLoading == false) || (viewModel.showLoading == false && limit <= viewModel.totalPages) {
+                                    if (viewModel.showLoading == false && limit <= viewModel.totalPages) {
                                         Button(action: {
                                             start = limit
                                             limit = limit + 10
@@ -404,10 +400,9 @@ struct WebScreen: View {
                     
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .onAppear{
+            }.task(id: viewID) {
                 focusedButton = .web
-                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                 viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
@@ -415,7 +410,7 @@ struct WebScreen: View {
                 Text(viewModel.chatListLoadingError)
             }
             
-        }
+        
     }
     
     func base64ToImage(base64String: String) -> UIImage? {

@@ -7,6 +7,8 @@ struct WebDetailScreen: View {
     @FocusState private var focusedField: FocusField?
     @State var searchText: String
     @State private var showLinkList = false
+    @State var hrefLink: String
+
 
     private var interalLinks: [(Int, Link)] {
         Array(viewModel.links.enumerated())
@@ -78,17 +80,25 @@ struct WebDetailScreen: View {
                 }
             }
             
+            .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
+                if wasLoading == true && isLoading == false {
+                    if hrefLink.isEmpty {
+                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
+                    } else {
+                        viewModel.getInternalLinks(url: hrefLink)
+                    }
+                }
+            }
+            
             .onAppear {
                 if(searchText == "")
                 {
                     print("hellooo")
                     viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
-                    viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
                 }
                 else
                 {
-                    viewModel.getScreenShots(urls: searchText, ux_type: 1, ss_width: 0, ss_height: 0)
-                    viewModel.getInternalLinks(url: searchText)
+                    viewModel.getScreenShots(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
                 }
                 
             }
@@ -96,8 +106,6 @@ struct WebDetailScreen: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.chatListLoadingError)
-            }.navigationDestination(for: Link.self) { link in
-                WebDetailScreen(searchText: link.href ?? "")
             }
         }
     }
@@ -276,7 +284,12 @@ struct WebDetailScreen: View {
 
     @ViewBuilder
     private func listView(index: Int, links: Link) -> some View {
-        NavigationLink(value: links)  {
+        Button(action: {
+            viewModel.getScreenShots(urls: links.href ?? "", ux_type: 1, ss_width: 0, ss_height: 0)
+            hrefLink = links.href ?? ""
+            showLinkList = false
+            
+        }) {
             Text(links.text ?? "")
                 .font(.system(size: 25, weight: .medium))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -295,8 +308,5 @@ struct WebDetailScreen: View {
         }
     }
 
-}
 
-#Preview {
-    WebDetailScreen(searchText: "")
 }

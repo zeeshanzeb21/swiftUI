@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct RateUs: View {
     @Environment(\.dismiss) var dismiss
@@ -50,6 +51,8 @@ struct RateUs: View {
 
                 HStack(spacing: 10) {
                     Button(action: {
+                        let appStoreURL = URL(string: "https://apps.apple.com/pk/app/sco-video-tutorials/id1142206124")!
+                            UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
                     }) {
                         Image(isFocusedLeft() ? "rate_us_focused" : "rate_us_unfocused")
                             .resizable()
