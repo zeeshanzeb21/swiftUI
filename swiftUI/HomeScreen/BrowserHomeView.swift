@@ -5,6 +5,7 @@
 //  Created by Invicttus on 16/05/2025.
 //
 import SwiftUI
+import Firebase
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
 
@@ -183,6 +184,10 @@ struct BrowserHomeView: View {
                             Button(action: {
                                 if(searchText.isEmpty == false)
                                 {
+//                                    Analytics.logEvent("tv_search_performed", parameters: [
+//                                            "query": searchText
+//                                        ])
+                                    
                                     path.append(FocusableButton.clickSearch)
 
                                 }

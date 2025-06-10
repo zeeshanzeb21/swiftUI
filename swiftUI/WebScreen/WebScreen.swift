@@ -26,7 +26,7 @@ struct WebScreen: View {
     enum FocusField: Hashable {
         case item(Int)
     }
-    enum FocusableButton {
+    enum FocusableButton: Hashable {
         case left,right,search,premium, settings,images,web, videos, news, shopping, list, loadMore, loadless
     }
     
@@ -80,7 +80,7 @@ struct WebScreen: View {
     
     @Binding var navigationPath: NavigationPath
     
-    let viewID: UUID // Add this
+    let viewID: UUID
 
     
     var body: some View {
@@ -153,39 +153,39 @@ struct WebScreen: View {
                         .padding(.leading, 13)
                         HStack(alignment: .top) {
                             // Search bar
-//                            ZStack {
-//                                RoundedRectangle(cornerRadius: 40)
-//                                    .fill(Color.white)
-//                                    .frame(width: 1050, height: 80)
-//                                    .overlay(
-//                                        RoundedRectangle(cornerRadius: 40)
-//                                            .stroke(
-//                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-//                                                lineWidth: 4
-//                                            )
-//                                    )
-//                                
-//                                HStack(spacing: 0) {
-//                                    if focusedButton != .search {
-//                                        Text(searchText)
-//                                            .foregroundColor(Color(hex: "#6A6767"))
-//                                            .font(.system(size: 30, weight: .regular))
-//                                            .padding(.leading, 10)
-//                                    }
-//                                    
-//                                    TextField("Search Here...", text: $searchText)
-//                                        .font(.system(size: 30, weight: .regular))
-//                                        .foregroundColor(Color(hex: "#6A6767"))
-//                                        .padding(.leading, 10)
-//                                        .background(Color.clear)
-//                                        .textFieldStyle(.plain)
-//                                        .focused($focusedButton, equals: .search)
-//                                        .onChange(of: focusedButton) { oldValue, newValue in
-//                                            placeholderText = newValue == .search ? "" : "Search Here..."
-//                                        }
-//                                }
-//                                .frame(width: 1000, height: 80)
-//                            }
+                            //                            ZStack {
+                            //                                RoundedRectangle(cornerRadius: 40)
+                            //                                    .fill(Color.white)
+                            //                                    .frame(width: 1050, height: 80)
+                            //                                    .overlay(
+                            //                                        RoundedRectangle(cornerRadius: 40)
+                            //                                            .stroke(
+                            //                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+                            //                                                lineWidth: 4
+                            //                                            )
+                            //                                    )
+                            //
+                            //                                HStack(spacing: 0) {
+                            //                                    if focusedButton != .search {
+                            //                                        Text(searchText)
+                            //                                            .foregroundColor(Color(hex: "#6A6767"))
+                            //                                            .font(.system(size: 30, weight: .regular))
+                            //                                            .padding(.leading, 10)
+                            //                                    }
+                            //
+                            //                                    TextField("Search Here...", text: $searchText)
+                            //                                        .font(.system(size: 30, weight: .regular))
+                            //                                        .foregroundColor(Color(hex: "#6A6767"))
+                            //                                        .padding(.leading, 10)
+                            //                                        .background(Color.clear)
+                            //                                        .textFieldStyle(.plain)
+                            //                                        .focused($focusedButton, equals: .search)
+                            //                                        .onChange(of: focusedButton) { oldValue, newValue in
+                            //                                            placeholderText = newValue == .search ? "" : "Search Here..."
+                            //                                        }
+                            //                                }
+                            //                                .frame(width: 1000, height: 80)
+                            //                            }
                             
                             Button(action: {
                                 focusedButton = .search
@@ -201,17 +201,17 @@ struct WebScreen: View {
                                                     lineWidth: 4
                                                 )
                                         )
-
+                                    
                                     Text(searchText.isEmpty ? "Search Here..." : searchText)
                                         .foregroundColor(Color(hex: "#6A6767"))
                                         .font(.system(size: 30, weight: .regular))
                                         .frame(width: 1000, alignment: .leading)
-                                        
+                                    
                                 }
                             }
                             .buttonStyle(WebDetailStyle()) // Remove default button visuals
                             .focused($focusedButton, equals: .search)
-
+                            
                             
                             HStack{
                                 Spacer()
@@ -348,7 +348,11 @@ struct WebScreen: View {
                                 {
                                     ForEach(articleButtons, id: \.0) { index, article in
                                         articleButtonView(index: index, article: article) {
-                                            //path.append(.webDetail(url: searchText + "/detail"))
+                                            print("searchRext")
+                                            print(searchText)
+                                            print(link)
+                                            navigationPath.append(FocusableButton.list)
+                                            
                                         }
                                     }
                                     
@@ -446,12 +450,17 @@ struct WebScreen: View {
                 
             }.task(id: viewID) {
                 focusedButton = .web
-                 viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.chatListLoadingError)
+            }.navigationDestination(for: FocusableButton.self) { button in
+                if button == .list {
+                    WebDetailScreen(searchText: searchText, hrefLink: link, navigationPath: $navigationPath)
+                }
+                
             }
             
         

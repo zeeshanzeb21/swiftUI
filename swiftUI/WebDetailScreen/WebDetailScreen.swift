@@ -30,7 +30,7 @@ struct WebDetailScreen: View {
     func isFocusedSetting() -> Bool { focusedButton == .settings }
     func isFocusedLink() -> Bool { focusedButton == .link }
     
-    @State private var path = NavigationPath()
+    @Binding var navigationPath: NavigationPath
     @Environment(\.dismiss) private var dismiss
 
     
@@ -38,7 +38,6 @@ struct WebDetailScreen: View {
     
 
     var body: some View {
-        NavigationStack(path: $path) {
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -80,25 +79,27 @@ struct WebDetailScreen: View {
                 }
             }
             
-            .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
-                if wasLoading == true && isLoading == false {
-                    if hrefLink.isEmpty {
-                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
-                    } else {
-                        viewModel.getInternalLinks(url: hrefLink)
-                    }
-                }
-            }
+//            .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
+//                if wasLoading == true && isLoading == false {
+//                    if hrefLink.isEmpty {
+//                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
+//                    } else {
+//                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
+//                    }
+//                }
+//            }
             
             .onAppear {
-                if(searchText == "")
+                if(hrefLink == "")
                 {
                     print("hellooo")
                     viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
                 }
                 else
                 {
-                    viewModel.getScreenShots(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                    print("hello")
+                    print(hrefLink)
+                    viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
                 }
                 
             }
@@ -107,7 +108,7 @@ struct WebDetailScreen: View {
             } message: {
                 Text(viewModel.chatListLoadingError)
             }
-        }
+        
     }
 
     private var topBar: some View {

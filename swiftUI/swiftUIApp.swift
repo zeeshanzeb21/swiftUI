@@ -11,7 +11,6 @@ import Firebase
 @main
 struct swiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var path = NavigationPath()
 
     var body: some Scene {
         WindowGroup {
