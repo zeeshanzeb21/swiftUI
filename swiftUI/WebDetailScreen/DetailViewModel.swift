@@ -16,7 +16,7 @@ class DetailViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var showLoading: Bool = false
     @Published var showLoadingSS: Bool = false
-
+    private var hasLoaded = false
     @Published var chatListLoadingError: String = ""
 
 
@@ -26,6 +26,13 @@ class DetailViewModel: ObservableObject {
     init( dataManager: ServiceProtocol = Service.shared) {
         self.dataManager = dataManager
     }
+    
+    func loadDataIfNeeded(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) {
+            guard !hasLoaded else { return }
+            hasLoaded = true
+            getScreenShots(urls: urls, ux_type: ux_type, ss_width: ss_width, ss_height: ss_height)
+        }
+    
     
     func getScreenShots(urls: String, ux_type: Int, ss_width: Int, ss_height: Int) {
         

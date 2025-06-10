@@ -30,12 +30,13 @@ struct WebDetailScreen: View {
     func isFocusedSetting() -> Bool { focusedButton == .settings }
     func isFocusedLink() -> Bool { focusedButton == .link }
     
-    @Binding var navigationPath: NavigationPath
+    @Binding var navigationPath: [Route]
     @Environment(\.dismiss) private var dismiss
 
     
+    @StateObject private var imageLoader = ImageListLoader()
 
-    
+
 
     var body: some View {
             ZStack {
@@ -79,34 +80,23 @@ struct WebDetailScreen: View {
                 }
             }
             
-//            .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
-//                if wasLoading == true && isLoading == false {
-//                    if hrefLink.isEmpty {
-//                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
-//                    } else {
-//                        viewModel.getInternalLinks(url: "https://github.com/M-HamzaPro")
-//                    }
-//                }
-//            }
+            .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
+                if wasLoading == true && isLoading == false {
+                        viewModel.getInternalLinks(url: hrefLink)
+                    
+                }
+            }
             
             .onAppear {
-                if(hrefLink == "")
-                {
-                    print("hellooo")
-                    viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
-                }
-                else
-                {
-                    print("hello")
-                    print(hrefLink)
-                    viewModel.getScreenShots(urls: "https://github.com/M-HamzaPro", ux_type: 1, ss_width: 0, ss_height: 0)
-                }
-                
+                   
+                    viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.chatListLoadingError)
+            }.onReceive(viewModel.$slices) { newSlices in
+                imageLoader.loadImages(from: newSlices)
             }
         
     }
@@ -114,7 +104,12 @@ struct WebDetailScreen: View {
     private var topBar: some View {
         HStack(spacing: 0) {
             Button(action: { print("Left tapped")
-                dismiss()
+                print("hrefrfvdcfv \(hrefLink)")
+                if !navigationPath.isEmpty {
+                        navigationPath.removeLast()
+                    } else {
+                        dismiss()
+                    }
             }) {
                 Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
                     .resizable()
@@ -130,7 +125,10 @@ struct WebDetailScreen: View {
             ))
 
             // Right Button
-            Button(action: { print("Right tapped") }) {
+            Button(action: { print("Right tapped")
+                navigationPath.append(.webDetail(searchText: searchText, hrefLink: hrefLink))
+                showLinkList = false
+            }) {
                 Image(isFocusedRight() ? "right_focus" : "right_unfocus")
                     .resizable()
                     .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
@@ -148,28 +146,52 @@ struct WebDetailScreen: View {
             // Search Field
             HStack(alignment: .top) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 40)
-                        .fill(Color.white)
-                        .frame(width: 1050, height: 80)
-                        .overlay(
+//                    RoundedRectangle(cornerRadius: 40)
+//                        .fill(Color.white)
+//                        .frame(width: 1050, height: 80)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 40)
+//                                .stroke(
+//                                    isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+//                                    lineWidth: 4
+//                                )
+//                        )
+//
+//                    HStack(spacing: 0) {
+//                        TextField(searchedTxt, text: .constant(searchedTxt))
+//                            .font(.system(size: 30, weight: .regular))
+//                            .foregroundColor(Color(hex: "#6A6767"))
+//                            .padding(.leading, 10)
+//                            .padding(.top, 10)
+//                            .background(Color.clear)
+//                            .textFieldStyle(.plain)
+//                            .focused($focusedButton, equals: .search)
+//                    }
+//                    .frame(width: 1000, height: 80)
+                    Button(action: {
+                        focusedButton = .search
+                    }) {
+                        ZStack {
                             RoundedRectangle(cornerRadius: 40)
-                                .stroke(
-                                    isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-                                    lineWidth: 4
+                                .fill(Color.white)
+                                .frame(width: 1050, height: 80)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 40)
+                                        .stroke(
+                                            isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+                                            lineWidth: 4
+                                        )
                                 )
-                        )
-
-                    HStack(spacing: 0) {
-                        TextField(searchedTxt, text: .constant(searchedTxt))
-                            .font(.system(size: 30, weight: .regular))
-                            .foregroundColor(Color(hex: "#6A6767"))
-                            .padding(.leading, 10)
-                            .padding(.top, 10)
-                            .background(Color.clear)
-                            .textFieldStyle(.plain)
-                            .focused($focusedButton, equals: .search)
+                            
+                            Text(searchText.isEmpty ? "Search Here..." : searchText)
+                                .foregroundColor(Color(hex: "#6A6767"))
+                                .font(.system(size: 30, weight: .regular))
+                                .frame(width: 1000, alignment: .leading)
+                            
+                        }
                     }
-                    .frame(width: 1000, height: 80)
+                    .buttonStyle(WebDetailStyle()) // Remove default button visuals
+                    .focused($focusedButton, equals: .search)
                 }
                 .padding(.leading, 70)
 
@@ -209,15 +231,38 @@ struct WebDetailScreen: View {
 
     private var contentArea: some View {
         ZStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 0) {
-                    ForEach(viewModel.slices, id: \.self) { imageUrlString in
-                        RemoteImageView(urlString: imageUrlString, placeholderHeight: 150)
-                    }
-                }
-            }
-            .focused($focusedButton, equals: .list)
-            .focusSection()
+            
+//            ScrollView(.vertical, showsIndicators: false) {
+//                VStack(spacing: 0) {
+//                    ForEach(viewModel.slices, id: \.self) { imageUrlString in
+//                        RemoteImageView(urlString: imageUrlString, placeholderHeight: 150)
+//                    }
+//                }
+//            }
+//            .focused($focusedButton, equals: .list)
+//            .focusSection()
+            
+            
+            if imageLoader.isLoading {
+                Text("Just a moment — we're loading your results.")
+                    .font(Font.custom("Saira-Bold", size: 35))
+                    .foregroundColor(Color(hex: "#3C3B3B"))
+                
+                 } else {
+                     ScrollView(.vertical, showsIndicators: false) {
+                         VStack(spacing: 0) {
+                             ForEach(viewModel.slices, id: \.self) { urlString in
+                                 RemoteImageView(
+                                     image: imageLoader.images[urlString],
+                                     placeholderHeight: 150
+                                 )
+                             }
+                         }
+                     }
+                     .focused($focusedButton, equals: .list)
+                     .focusSection()
+                 }
+            
 
             VStack {
                 Spacer()
@@ -286,9 +331,10 @@ struct WebDetailScreen: View {
     @ViewBuilder
     private func listView(index: Int, links: Link) -> some View {
         Button(action: {
-            viewModel.getScreenShots(urls: links.href ?? "", ux_type: 1, ss_width: 0, ss_height: 0)
-            hrefLink = links.href ?? ""
+            
+            navigationPath.append(.webDetail(searchText: searchText, hrefLink: links.href ?? ""))
             showLinkList = false
+
             
         }) {
             Text(links.text ?? "")

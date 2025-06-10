@@ -4,7 +4,7 @@ import StoreKit
 struct RateUs: View {
     @Environment(\.dismiss) var dismiss
     @FocusState private var focusedButton: FocusableButton?
-    @Binding var navigationPath: NavigationPath  // <- use binding from parent
+    @Binding var navigationPath: [Route]  // <- use binding from parent
 
     enum FocusableButton: Hashable {
         case left, right, cross
@@ -64,7 +64,7 @@ struct RateUs: View {
                     Spacer().frame(width: 30)
 
                     Button(action: {
-                        navigationPath.append(FocusableButton.right)
+                        navigationPath.append(.feedbackScreen)
                     }) {
                         Image(isFocusedRight() ? "feedback_focused" : "feedback_unfocused")
                             .resizable()
@@ -81,8 +81,8 @@ struct RateUs: View {
             }
             .focusSection()
         }
-        .navigationDestination(for: FocusableButton.self) { button in
-            if button == .right {
+        .navigationDestination(for: Route.self) { button in
+            if button == .feedbackScreen {
                 FeedbackScreen()
             }
         }

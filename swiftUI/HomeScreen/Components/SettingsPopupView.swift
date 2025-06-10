@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsPopupView: View {
     let onClose: () -> Void
-    @Binding var navigationPath: NavigationPath
+    @Binding var navigationPath: [Route]
     @FocusState private var focusedButton: FocusableButton?
 
     enum FocusableButton: Hashable {
@@ -30,11 +30,11 @@ struct SettingsPopupView: View {
                 }
 
             HStack(spacing: 14) {
-                settingButton(icon: isFocusedRate() ? "rate_us_focus" : "rate_us_unfocus", focus: .rateUs, height: 196, width: 184)
+                settingButton(icon: isFocusedRate() ? "rate_us_focus" : "rate_us_unfocus", focus: .rateUs, height: 196, width: 184, route: .rateUs)
 
-                settingButton(icon: isFocusedHowUse() ? "how_to_use_focus" : "how_to_use_unfocus", focus: .howToUse, height: 196, width: 184)
+                settingButton(icon: isFocusedHowUse() ? "how_to_use_focus" : "how_to_use_unfocus", focus: .howToUse, height: 196, width: 184, route: .rateUs)
 
-                settingButton(icon: isFocusedCross() ? "cross_focus" : "cross_unfocus", focus: .cross, height: 80, width: 80)
+                settingButton(icon: isFocusedCross() ? "cross_focus" : "cross_unfocus", focus: .cross, height: 80, width: 80, route: .rateUs)
                     .frame(maxHeight: .infinity, alignment: .top)
             }
             .padding(.top, 0)
@@ -46,16 +46,16 @@ struct SettingsPopupView: View {
     }
 
     @ViewBuilder
-    private func settingButton(icon: String, focus: FocusableButton, height: CGFloat, width: CGFloat) -> some View {
+    private func settingButton(icon: String, focus: FocusableButton, height: CGFloat, width: CGFloat,route: Route) -> some View {
         Button(action: {
             switch focus {
             case .cross:
                 onClose()
             case .howToUse:
-                navigationPath.append(focus)
+                navigationPath.append(.howToUse)
                 onClose()
             case .rateUs:
-                navigationPath.append(focus)
+                navigationPath.append(.rateUs)
                 onClose()
             }
         }) {

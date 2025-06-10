@@ -78,8 +78,8 @@ struct WebScreen: View {
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
     
-    @Binding var navigationPath: NavigationPath
-    
+    @Binding var navigationPath: [Route]
+
     let viewID: UUID
 
     
@@ -351,7 +351,8 @@ struct WebScreen: View {
                                             print("searchRext")
                                             print(searchText)
                                             print(link)
-                                            navigationPath.append(FocusableButton.list)
+                                            navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
+
                                             
                                         }
                                     }
@@ -456,16 +457,11 @@ struct WebScreen: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.chatListLoadingError)
-            }.navigationDestination(for: FocusableButton.self) { button in
-                if button == .list {
-                    WebDetailScreen(searchText: searchText, hrefLink: link, navigationPath: $navigationPath)
-                }
-                
             }
             
         
     }
-    
+     
     func base64ToImage(base64String: String) -> UIImage? {
         let cleanedString: String
         if let range = base64String.range(of: "base64,") {

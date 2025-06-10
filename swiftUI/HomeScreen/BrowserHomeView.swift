@@ -57,7 +57,7 @@ struct BrowserHomeView: View {
     }
         @State private var showSettingsPopup = false
     
-    @State private var path = NavigationPath()
+    @State private var path: [Route] = []
 
 
     
@@ -188,7 +188,7 @@ struct BrowserHomeView: View {
 //                                            "query": searchText
 //                                        ])
                                     
-                                    path.append(FocusableButton.clickSearch)
+                                    path.append(.web(searchText: searchText))
 
                                 }
                                 else
@@ -326,24 +326,21 @@ struct BrowserHomeView: View {
                 }
             }.onAppear {
                 focusedButton = .premium
-            }.navigationDestination(for: SettingsPopupView.FocusableButton.self) { button in
-                switch button {
-                case .howToUse:
-                    HowToUseScreen()
-                case .rateUs:
-                    RateUs(navigationPath: $path)
-                default:
-                    EmptyView()
-                }
             }
-            .navigationDestination(for: FocusableButton.self) { button in
-                switch button {
-                case .clickSearch:
-                    WebScreen(searchText: searchText, navigationPath: $path, viewID: UUID())
-                default:
-                    EmptyView()
-                }
-            }
+            .navigationDestination(for: Route.self) { route in
+                   switch route {
+                   case .web(let searchText):
+                       WebScreen(searchText: searchText, navigationPath: $path,viewID: UUID())
+                   case .webDetail(let searchText, let hrefLink):
+                       WebDetailScreen(searchText: searchText, hrefLink: hrefLink, navigationPath: $path)
+                   case .howToUse:
+                       HowToUseScreen()
+                   case .rateUs:
+                       RateUs(navigationPath: $path)
+                   case .feedbackScreen:
+                       FeedbackScreen()
+                   }
+               }
             .onMoveCommand { direction in
                 switch (focusedButton, direction) {
                     default:

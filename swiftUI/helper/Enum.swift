@@ -6,9 +6,11 @@
 //
 
 import Foundation
-enum Route: Hashable {
-    case web(url: String)
-    case webDetail(url: String)
-    
 
+enum Route: Hashable {
+    case web(searchText: String)
+    case webDetail(searchText: String, hrefLink: String)
+    case howToUse
+    case rateUs
+    case feedbackScreen
 }
