@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 struct WebScreen: View {
     @Environment(\.dismiss) var dismiss
     @FocusState private var focusedButton: FocusableButton?
@@ -20,6 +19,8 @@ struct WebScreen: View {
     @State private var selectedURL: String?
     @State private var isNavigated = false
     @State private var link: String = ""
+    @State private var showSettingsPopup = false
+
     
     
     enum FocusField: Hashable {
@@ -118,6 +119,7 @@ struct WebScreen: View {
                         Button(action: {
                             print("Settings tapped")
                             dismiss()
+                            
                         }) {
                             Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
                                 .resizable()
@@ -134,6 +136,7 @@ struct WebScreen: View {
                         
                         Button(action: {
                             print("Settings tapped")
+                            
                         }) {
                             Image(isFocusedRight() ? "right_focus" : "right_unfocus")
                                 .resizable()
@@ -150,39 +153,65 @@ struct WebScreen: View {
                         .padding(.leading, 13)
                         HStack(alignment: .top) {
                             // Search bar
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 40)
-                                    .fill(Color.white)
-                                    .frame(width: 1050, height: 80)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 40)
-                                            .stroke(
-                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-                                                lineWidth: 4
-                                            )
-                                    )
-                                
-                                HStack(spacing: 0) {
-                                    if focusedButton != .search {
-                                        Text(searchText)
-                                            .foregroundColor(Color(hex: "#6A6767"))
-                                            .font(.system(size: 30, weight: .regular))
-                                            .padding(.leading, 10)
-                                    }
-                                    
-                                    TextField("Search Here...", text: $searchText)
-                                        .font(.system(size: 30, weight: .regular))
+//                            ZStack {
+//                                RoundedRectangle(cornerRadius: 40)
+//                                    .fill(Color.white)
+//                                    .frame(width: 1050, height: 80)
+//                                    .overlay(
+//                                        RoundedRectangle(cornerRadius: 40)
+//                                            .stroke(
+//                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+//                                                lineWidth: 4
+//                                            )
+//                                    )
+//                                
+//                                HStack(spacing: 0) {
+//                                    if focusedButton != .search {
+//                                        Text(searchText)
+//                                            .foregroundColor(Color(hex: "#6A6767"))
+//                                            .font(.system(size: 30, weight: .regular))
+//                                            .padding(.leading, 10)
+//                                    }
+//                                    
+//                                    TextField("Search Here...", text: $searchText)
+//                                        .font(.system(size: 30, weight: .regular))
+//                                        .foregroundColor(Color(hex: "#6A6767"))
+//                                        .padding(.leading, 10)
+//                                        .background(Color.clear)
+//                                        .textFieldStyle(.plain)
+//                                        .focused($focusedButton, equals: .search)
+//                                        .onChange(of: focusedButton) { oldValue, newValue in
+//                                            placeholderText = newValue == .search ? "" : "Search Here..."
+//                                        }
+//                                }
+//                                .frame(width: 1000, height: 80)
+//                            }
+                            
+                            Button(action: {
+                                focusedButton = .search
+                            }) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 40)
+                                        .fill(Color.white)
+                                        .frame(width: 1050, height: 80)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 40)
+                                                .stroke(
+                                                    isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
+                                                    lineWidth: 4
+                                                )
+                                        )
+
+                                    Text(searchText.isEmpty ? "Search Here..." : searchText)
                                         .foregroundColor(Color(hex: "#6A6767"))
-                                        .padding(.leading, 10)
-                                        .background(Color.clear)
-                                        .textFieldStyle(.plain)
-                                        .focused($focusedButton, equals: .search)
-                                        .onChange(of: focusedButton) { oldValue, newValue in
-                                            placeholderText = newValue == .search ? "" : "Search Here..."
-                                        }
+                                        .font(.system(size: 30, weight: .regular))
+                                        .frame(width: 1000, alignment: .leading)
+                                        
                                 }
-                                .frame(width: 1000, height: 80)
                             }
+                            .buttonStyle(WebDetailStyle()) // Remove default button visuals
+                            .focused($focusedButton, equals: .search)
+
                             
                             HStack{
                                 Spacer()
@@ -204,6 +233,7 @@ struct WebScreen: View {
                                     .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260,height: 80, cornerRadius: 53))
                                     Button(action: {
                                         print("Settings tapped")
+                                        showSettingsPopup = true
                                     }) {
                                         Image(isFocusedSetting() ? "setting_focus" : "setting")
                                             .resizable()
@@ -400,6 +430,20 @@ struct WebScreen: View {
                     
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                if showSettingsPopup {
+                    SettingsPopupView(
+                        onClose: {
+                            showSettingsPopup = false
+                        },
+                        navigationPath: $navigationPath
+                    )
+                    .onDisappear {
+                        focusedButton = .settings
+                    }
+                    .transition(.opacity.combined(with: .scale))
+                    .zIndex(100)
+                }
+                
             }.task(id: viewID) {
                 focusedButton = .web
                  viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)

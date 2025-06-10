@@ -16,7 +16,7 @@ struct ListButtonStyle: ButtonStyle {
            configuration.label
                .padding(EdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0))
                .frame(width: width, height: height, alignment: .topLeading)
-               .background(Color.white)
+               .background(Color(hex: "#DDDDDD").opacity(0.2))
                .overlay(
                    RoundedRectangle(cornerRadius: 20)
                        .stroke(
