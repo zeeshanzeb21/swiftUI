@@ -348,12 +348,8 @@ struct WebScreen: View {
                                 {
                                     ForEach(articleButtons, id: \.0) { index, article in
                                         articleButtonView(index: index, article: article) {
-                                            print("searchRext")
-                                            print(searchText)
-                                            print(link)
                                             navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
 
-                                            
                                         }
                                     }
                                     
@@ -375,6 +371,9 @@ struct WebScreen: View {
                                     LazyVGrid(columns: columns, spacing: 16) {
                                         ForEach(articleButtons, id: \.0) { index, article in
                                             articleImageView(index: index, article: article)
+                                            {
+                                                navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
+                                            }
                                                 .frame(width: 430, height: 460)
                                                 .background(Color.white)
                                                 .cornerRadius(20)
@@ -537,9 +536,11 @@ struct WebScreen: View {
         }
     }
     @ViewBuilder
-    private func articleImageView(index: Int, article: DataModel) -> some View {
+    private func articleImageView(index: Int, article: DataModel,onTap: @escaping () -> Void) -> some View {
         Button(action: {
-            print("Selected article at index \(index)")
+            print("Selected article at index \(article)")
+            link = article.link ?? ""
+            onTap()
         }) {
             VStack{
                 if let image = base64ToImage(base64String: article.image ?? "") {

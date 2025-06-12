@@ -332,7 +332,7 @@ struct BrowserHomeView: View {
                    case .web(let searchText):
                        WebScreen(searchText: searchText, navigationPath: $path,viewID: UUID())
                    case .webDetail(let searchText, let hrefLink):
-                       WebDetailScreen(searchText: searchText, hrefLink: hrefLink, navigationPath: $path)
+                       WebDetailScreen(searchText: searchText, hrefLink: hrefLink,navigationPath: $path)
                    case .howToUse:
                        HowToUseScreen()
                    case .rateUs:

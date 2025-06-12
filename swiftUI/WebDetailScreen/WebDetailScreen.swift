@@ -9,6 +9,8 @@ struct WebDetailScreen: View {
     @State private var showLinkList = false
     @State var hrefLink: String
 
+    @State private var visitedLinks: [String] = []
+
 
     private var interalLinks: [(Int, Link)] {
         Array(viewModel.links.enumerated())
@@ -35,6 +37,7 @@ struct WebDetailScreen: View {
 
     
     @StateObject private var imageLoader = ImageListLoader()
+    
 
 
 
@@ -88,8 +91,9 @@ struct WebDetailScreen: View {
             }
             
             .onAppear {
-                   
-                    viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                focusedButton = .search
+                
+                viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
@@ -104,8 +108,16 @@ struct WebDetailScreen: View {
     private var topBar: some View {
         HStack(spacing: 0) {
             Button(action: { print("Left tapped")
-                print("hrefrfvdcfv \(hrefLink)")
                 if !navigationPath.isEmpty {
+                    UserDefaults.standard.set(true, forKey: "BackBtnClicked")
+                      var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+                      currentIndex -= 1
+                      UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+                       let currentInd = UserDefaults.standard.getCurrentLinkIndex()
+                    let savedLinks = UserDefaults.standard.getSavedLinks()
+
+                    print("remove \(currentInd)")
+                    print("indexed \(savedLinks.count)")
                         navigationPath.removeLast()
                     } else {
                         dismiss()
@@ -124,10 +136,28 @@ struct WebDetailScreen: View {
                 cornerRadius: isFocusedLeft() ? 30 : 23
             ))
 
-            // Right Button
             Button(action: { print("Right tapped")
-                navigationPath.append(.webDetail(searchText: searchText, hrefLink: hrefLink))
-                showLinkList = false
+                let savedLinks = UserDefaults.standard.getSavedLinks()
+                var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+                let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
+            
+                print("get \(currentIndex)")
+                print("indexed \(savedLinks.count)")
+
+                if currentIndex < savedLinks.count {
+                    let nextLink = savedLinks[currentIndex]
+                    navigationPath.append(.webDetail(searchText: searchText, hrefLink: nextLink))
+                } else {
+                    print("Already at the last link. No forward navigation.")
+                }
+                if(backClicked == true)
+                {
+                    print("adding")
+                    currentIndex += 1
+                    UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+                }
+               
+                
             }) {
                 Image(isFocusedRight() ? "right_focus" : "right_unfocus")
                     .resizable()
@@ -332,6 +362,11 @@ struct WebDetailScreen: View {
     private func listView(index: Int, links: Link) -> some View {
         Button(action: {
             
+            let href = links.href ?? ""
+            UserDefaults.standard.saveLink(href)
+            var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+            currentIndex += 1
+            UserDefaults.standard.setCurrentLinkIndex(currentIndex)
             navigationPath.append(.webDetail(searchText: searchText, hrefLink: links.href ?? ""))
             showLinkList = false
 

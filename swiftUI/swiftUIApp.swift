@@ -8,6 +8,7 @@
 import SwiftUI
 import Alamofire
 import Firebase
+import Foundation
 @main
 struct swiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -24,6 +25,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
+     
+
     return true
   }
 }

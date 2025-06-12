@@ -23,6 +23,9 @@ class WebViewModel: ObservableObject {
                 guard let self = self else { return }
                 
                 self.showLoading = false
+                UserDefaults.standard.removeObject(forKey: "SavedLinks")
+                UserDefaults.standard.removeObject(forKey: "CurrentLinkIndex")
+                UserDefaults.standard.removeObject(forKey: "BackBtnClicked")
                 
                 if let error = dataResponse.error {
                     self.createAlert(with: error)
