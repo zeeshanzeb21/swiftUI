@@ -38,6 +38,7 @@ struct WebDetailScreen: View {
     
     @StateObject private var imageLoader = ImageListLoader()
     
+    @State private var showSettingsPopup = false
 
 
 
@@ -60,7 +61,20 @@ struct WebDetailScreen: View {
                     contentArea
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
+                if showSettingsPopup {
+                    SettingsPopupView(
+                        onClose: {
+                            showSettingsPopup = false
+                        },
+                        navigationPath: $navigationPath
+                    )
+                    .onDisappear {
+                        focusedButton = .settings
+                    }
+                    .transition(.opacity.combined(with: .scale))
+                    .zIndex(100)
+                }
+            }.focusSection()
             .onChange(of: focusedField) { oldValue, newFocus in
                 switch newFocus {
                     
@@ -74,14 +88,20 @@ struct WebDetailScreen: View {
                     break
                 }
             }
-            .onMoveCommand { direction in
-                switch (focusedButton, direction) {
-                case (.link, .left):
-                    focusedButton = .list
-                default:
-                    break
-                }
-            }
+ //           .onMoveCommand { direction in
+ //               switch (focusedButton, direction) {
+//                case (.list, .left):
+//                    focusedButton = .link
+//                case (.list, .right):
+//                    showLinkList = false
+//                    focusedButton = .list
+//                default:
+//                    break
+  //              }
+   //         }
+        
+           
+
             
             .onChange(of: viewModel.showLoading) { wasLoading, isLoading in
                 if wasLoading == true && isLoading == false {
@@ -113,14 +133,14 @@ struct WebDetailScreen: View {
                       var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
                       currentIndex -= 1
                       UserDefaults.standard.setCurrentLinkIndex(currentIndex)
-                       let currentInd = UserDefaults.standard.getCurrentLinkIndex()
                     let savedLinks = UserDefaults.standard.getSavedLinks()
-
-                    print("remove \(currentInd)")
-                    print("indexed \(savedLinks.count)")
+                    print("ind \(savedLinks.count)")
                         navigationPath.removeLast()
                     } else {
+                        
                         dismiss()
+                        
+
                     }
             }) {
                 Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
@@ -141,8 +161,6 @@ struct WebDetailScreen: View {
                 var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
                 let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
             
-                print("get \(currentIndex)")
-                print("indexed \(savedLinks.count)")
 
                 if currentIndex < savedLinks.count {
                     let nextLink = savedLinks[currentIndex]
@@ -150,12 +168,13 @@ struct WebDetailScreen: View {
                 } else {
                     print("Already at the last link. No forward navigation.")
                 }
-                if(backClicked == true)
+                if(backClicked == true && currentIndex < savedLinks.count)
                 {
-                    print("adding")
                     currentIndex += 1
                     UserDefaults.standard.setCurrentLinkIndex(currentIndex)
                 }
+
+                
                
                 
             }) {
@@ -229,22 +248,24 @@ struct WebDetailScreen: View {
 
                 // Premium + Settings
                 HStack(spacing: 16) {
-                    Button(action: { print("Premium tapped") }) {
-                        HStack(spacing: 8) {
-                            Image("premium")
-                                .resizable()
-                                .frame(width: 48, height: 48)
-                                .padding(8)
-                            Text("Premium")
-                                .font(.system(size: 31, weight: .bold))
-                                .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B"))
-                                .padding(8)
-                        }
-                    }
-                    .focused($focusedButton, equals: .premium)
-                    .buttonStyle(PremiumButton(isFocused: isFocusedPremium(), width: 260, height: 80, cornerRadius: 53))
+//                    Button(action: { print("Premium tapped") }) {
+//                        HStack(spacing: 8) {
+//                            Image("premium")
+//                                .resizable()
+//                                .frame(width: 48, height: 48)
+//                                .padding(8)
+//                            Text("Premium")
+//                                .font(.system(size: 31, weight: .bold))
+//                                .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B"))
+//                                .padding(8)
+//                        }
+//                    }
+//                    .focused($focusedButton, equals: .premium)
+//                    .buttonStyle(PremiumButton(isFocused: isFocusedPremium(), width: 260, height: 80, cornerRadius: 53))
 
-                    Button(action: { print("Settings tapped") }) {
+                    Button(action: { print("Settings tapped")
+                        showSettingsPopup = true
+                    }) {
                         Image(isFocusedSetting() ? "setting_focus" : "setting")
                             .resizable()
                             .frame(width: 45, height: 45)
@@ -256,21 +277,11 @@ struct WebDetailScreen: View {
                 .padding(.trailing, 0)
             }
         }
-        .focusSection()
+        
     }
 
     private var contentArea: some View {
         ZStack {
-            
-//            ScrollView(.vertical, showsIndicators: false) {
-//                VStack(spacing: 0) {
-//                    ForEach(viewModel.slices, id: \.self) { imageUrlString in
-//                        RemoteImageView(urlString: imageUrlString, placeholderHeight: 150)
-//                    }
-//                }
-//            }
-//            .focused($focusedButton, equals: .list)
-//            .focusSection()
             
             
             if imageLoader.isLoading {
@@ -287,7 +298,7 @@ struct WebDetailScreen: View {
                                      placeholderHeight: 150
                                  )
                              }
-                         }
+                         }.focusSection()
                      }
                      .focused($focusedButton, equals: .list)
                      .focusSection()
@@ -300,21 +311,21 @@ struct WebDetailScreen: View {
                     Spacer()
                     
                     ZStack(alignment: .trailing) {
-                        if showLinkList {
-                            linkListView
-                                .frame(width: 300)
-                                .frame(maxHeight: .infinity)
-                                .background(Color.white)
-                                .ignoresSafeArea()
-                                .cornerRadius(16)
-                                .transition(.move(edge: .trailing))
-                                .animation(.easeInOut, value: showLinkList)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
-                                    
-                                )
-                        }
+//                        if showLinkList {
+//                            linkListView
+//                                .frame(width: 300)
+//                                .frame(maxHeight: .infinity)
+//                                .background(Color.white)
+//                                .ignoresSafeArea()
+//                                .cornerRadius(16)
+//                                .transition(.move(edge: .trailing))
+//                                .animation(.easeInOut, value: showLinkList)
+//                                .overlay(
+//                                    RoundedRectangle(cornerRadius: 16)
+//                                        .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
+//                                    
+//                                )
+//                        }
                         
                         Button(action: {
                             withAnimation {
@@ -333,7 +344,7 @@ struct WebDetailScreen: View {
                 }
                 Spacer()
                 
-            }.focusSection()
+            }
         }
         .ignoresSafeArea()
     }

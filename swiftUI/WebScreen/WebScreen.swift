@@ -136,6 +136,12 @@ struct WebScreen: View {
                         
                         Button(action: {
                             print("Settings tapped")
+                            let link = UserDefaults.standard.string(forKey: "links")
+                            let search = UserDefaults.standard.string(forKey: "search")
+
+                            navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+
+                            
                             
                         }) {
                             Image(isFocusedRight() ? "right_focus" : "right_unfocus")
@@ -348,6 +354,8 @@ struct WebScreen: View {
                                 {
                                     ForEach(articleButtons, id: \.0) { index, article in
                                         articleButtonView(index: index, article: article) {
+                                            UserDefaults.standard.set(article.links, forKey: "links")
+                                            UserDefaults.standard.set(searchText, forKey: "search")
                                             navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
 
                                         }
@@ -372,6 +380,8 @@ struct WebScreen: View {
                                         ForEach(articleButtons, id: \.0) { index, article in
                                             articleImageView(index: index, article: article)
                                             {
+                                                UserDefaults.standard.set(article.link, forKey: "links")
+                                                UserDefaults.standard.set(searchText, forKey: "search")
                                                 navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
                                             }
                                                 .frame(width: 430, height: 460)
