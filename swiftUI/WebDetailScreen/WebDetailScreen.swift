@@ -8,7 +8,7 @@ struct WebDetailScreen: View {
     @State var searchText: String
     @State private var showLinkList = false
     @State var hrefLink: String
-
+    let viewID: UUID
     @State private var visitedLinks: [String] = []
     
     private var interalLinks: [(Int, Link)] {
@@ -124,10 +124,15 @@ struct WebDetailScreen: View {
                 }
             }
             
-            .onAppear {
+//            .onAppear {
+//                focusedButton = .search
+//                
+//                viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+//            }
+            .task(id: viewID) {
                 focusedButton = .search
-                
                 viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}

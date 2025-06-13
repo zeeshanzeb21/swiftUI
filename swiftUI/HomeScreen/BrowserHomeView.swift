@@ -240,6 +240,7 @@ struct BrowserHomeView: View {
                         Button(action: {
                             print("Tapped")
                         }) {
+                
                             HStack(spacing: 8) {
                                 Image("youtube")
                                     .resizable()
@@ -254,6 +255,16 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedYoutube(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
+                            if(searchText.isEmpty == false)
+                            {
+                                
+                                let twitchUrl = "https://www.twitch.tv/search?term="
+                                path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
+                            }
+                            else
+                            {
+                                showError = true
+                            }
                         }) {
                             HStack(spacing: 8) {
                                 Image("twich")
@@ -273,6 +284,16 @@ struct BrowserHomeView: View {
                     HStack(spacing: 40) {
                         Button(action: {
                             print("Tapped")
+                            if(searchText.isEmpty == false)
+                            {
+                                
+                                let twitchUrl = "https://en.wikipedia.org/wiki/Special:Search?search="
+                                path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
+                            }
+                            else
+                            {
+                                showError = true
+                            }
                         }) {
                             HStack(spacing: 8) {
                                 Image("wiki")
@@ -288,6 +309,16 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeki(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
+                            if(searchText.isEmpty == false)
+                            {
+                                
+                                let twitchUrl = "https://www.ebay.com/sch/i.html?_n="
+                                path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
+                            }
+                            else
+                            {
+                                showError = true
+                            }
                         }) {
                             HStack(spacing: 8) {
                                 Image("ebay")
@@ -303,6 +334,16 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedEbay(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
+                            if(searchText.isEmpty == false)
+                            {
+                                
+                                let twitchUrl = "https://www.pinterest.com/search/pins/?q="
+                                path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
+                            }
+                            else
+                            {
+                                showError = true
+                            }
                         }) {
                             HStack(spacing: 8) {
                                 Image("pin")
@@ -319,6 +360,13 @@ struct BrowserHomeView: View {
                     }.padding(.top, 10)
                         .focusSection()
                     Spacer()
+                    if focusedButton == .youtube
+                    {
+                        Text("Coming Soon!!!")
+                            .font(Font.custom("Saira-Bold", size: 35))
+                            .foregroundColor(Color(hex: "#3C3B3B"))
+                    }
+                
                     
                 }
                 if showSettingsPopup {
@@ -342,7 +390,7 @@ struct BrowserHomeView: View {
                    case .web(let searchText, let searchType):
                        WebScreen(searchText: searchText, searchType: searchType, navigationPath: $path, viewID: UUID())
                    case .webDetail(let searchText, let hrefLink):
-                       WebDetailScreen(searchText: searchText, hrefLink: hrefLink,navigationPath: $path)
+                       WebDetailScreen(searchText: searchText, hrefLink: hrefLink,viewID: UUID(), navigationPath: $path)
                    case .howToUse:
                        HowToUseScreen()
                    case .rateUs:

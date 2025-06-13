@@ -46,11 +46,17 @@ struct WebScreen: View {
     func isFocusedSetting() -> Bool {
         focusedButton == .settings
     }
+//    func isFocusedWeb() -> Bool {
+//        focusedButton == .web
+//    }
     func isFocusedWeb() -> Bool {
-        focusedButton == .web
+        return focusedButton == .web || (searchType == "general" && isArticleItemFocused())
     }
+//    func isFocusedImages() -> Bool {
+//        focusedButton == .images
+//    }
     func isFocusedImages() -> Bool {
-        focusedButton == .images
+        return focusedButton == .images || (searchType == "isch" && isArticleItemFocused())
     }
     func isFocusedVideos() -> Bool {
         focusedButton == .videos
@@ -69,6 +75,13 @@ struct WebScreen: View {
     }
     func isFocusedLoadless() -> Bool {
         focusedButton == .loadless
+    }
+    
+    func isArticleItemFocused() -> Bool {
+        if case .item(_) = focusedField {
+            return true
+        }
+        return false
     }
     
     @ObservedObject var viewModel = WebViewModel()
@@ -268,13 +281,14 @@ struct WebScreen: View {
                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
-                                Image(isFocusedWeb() ?"web_focus": "web")
+                                Image(isFocusedWeb() ? "web_focus": "web")
                                     .resizable()
                                     .frame(width: 26, height: 26)
                                     .padding(4)
                                 Text("Web")
                                     .font(.system(size: 28,weight: .medium,design: .default))
-                                    .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79")).padding(4)
+                                    .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79"))
+                                        .padding(4)
                             }
                         }
                         .focused($focusedButton, equals: .web)
@@ -286,7 +300,7 @@ struct WebScreen: View {
                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
-                                Image(isFocusedImages() ? "images_focus": "images")
+                                Image(isFocusedImages()  ? "images_focus": "images")
                                     .resizable()
                                     .frame(width: 30, height: 30)
                                     .padding(4)
@@ -458,7 +472,8 @@ struct WebScreen: View {
                     .zIndex(100)
                 }
                 
-            }.task(id: viewID) {
+            }.focusSection()
+            .task(id: viewID) {
                 if(searchType == "general")
                 {
                     focusedButton = .web
@@ -548,10 +563,21 @@ struct WebScreen: View {
         .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 204, width: 1669,selectedColor: Color(hex: "#005C79")))
         .focused($focusedField, equals: .item(index))
         .onChange(of: focusedField) { _, newValue in
-            if case .item(let idx) = newValue {
+            switch newValue {
+            case .item(let idx) where idx == index:
                 focusedIndex = idx
+            default:
+                // Focus is no longer on this index
+                if focusedIndex == index {
+                    focusedIndex = -1
+                }
             }
         }
+//        .onChange(of: focusedField) { _, newValue in
+//            if case .item(let idx) = newValue {
+//                focusedIndex = idx
+//            }
+//        }
     }
     @ViewBuilder
     private func articleImageView(index: Int, article: DataModel,onTap: @escaping () -> Void) -> some View {
@@ -611,9 +637,20 @@ struct WebScreen: View {
         }
         .buttonStyle(ListButtonStyle(isFocused: focusedIndex == index, height: 460, width: 430,selectedColor: Color(hex: "#00759B")))
         .focused($focusedField, equals: .item(index))
+//        .onChange(of: focusedField) { _, newValue in
+//            if case .item(let idx) = newValue {
+//                focusedIndex = idx
+//            }
+//        }
         .onChange(of: focusedField) { _, newValue in
-            if case .item(let idx) = newValue {
+            switch newValue {
+            case .item(let idx) where idx == index:
                 focusedIndex = idx
+            default:
+                // Focus is no longer on this index
+                if focusedIndex == index {
+                    focusedIndex = -1
+                }
             }
         }
     }

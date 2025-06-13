@@ -12,6 +12,7 @@ struct BorderedMainButtonStyle: ButtonStyle {
     var height: CGFloat
     var width: CGFloat
     var cornerRadius: CGFloat
+    
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
