@@ -184,11 +184,8 @@ struct BrowserHomeView: View {
                             Button(action: {
                                 if(searchText.isEmpty == false)
                                 {
-//                                    Analytics.logEvent("tv_search_performed", parameters: [
-//                                            "query": searchText
-//                                        ])
                                     
-                                    path.append(.web(searchText: searchText))
+                                    path.append(.web(searchText: searchText, searchType: "general"))
 
                                 }
                                 else
@@ -214,6 +211,19 @@ struct BrowserHomeView: View {
                     HStack(spacing: 40) {
                         Button(action: {
                             print("Tapped")
+                            if(searchText.isEmpty == false)
+                            {
+                                
+                                path.append(.web(searchText: searchText, searchType: "isch"))
+
+                            }
+                            else
+                            {
+                                showError = true
+                            }
+                            
+                            
+                    
                         }) {
                             HStack(spacing: 8) {
                                 Image("image")
@@ -329,8 +339,8 @@ struct BrowserHomeView: View {
             }
             .navigationDestination(for: Route.self) { route in
                    switch route {
-                   case .web(let searchText):
-                       WebScreen(searchText: searchText, navigationPath: $path,viewID: UUID())
+                   case .web(let searchText, let searchType):
+                       WebScreen(searchText: searchText, searchType: searchType, navigationPath: $path, viewID: UUID())
                    case .webDetail(let searchText, let hrefLink):
                        WebDetailScreen(searchText: searchText, hrefLink: hrefLink,navigationPath: $path)
                    case .howToUse:

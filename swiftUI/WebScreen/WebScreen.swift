@@ -15,7 +15,7 @@ struct WebScreen: View {
     @FocusState private var focusedField: FocusField?
     @State private var start: Int = 0
     @State private var limit: Int = 10
-    @State private var searchType : String = "general"
+    @State var searchType : String 
     @State private var selectedURL: String?
     @State private var isNavigated = false
     @State private var link: String = ""
@@ -459,8 +459,16 @@ struct WebScreen: View {
                 }
                 
             }.task(id: viewID) {
-                focusedButton = .web
-                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                if(searchType == "general")
+                {
+                    focusedButton = .web
+                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+
+                }
+                else if(searchType == "isch"){
+                    focusedButton = .images
+                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                }
             }
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}

@@ -4,10 +4,33 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Promises (Playground).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 		<key>swiftUI.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>3</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>89FCA13F2DD4A47800F3ED96</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>89FCA14C2DD4A47900F3ED96</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>89FCA1562DD4A47900F3ED96</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

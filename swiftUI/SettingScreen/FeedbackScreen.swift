@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAnalytics
 struct FeedbackScreen: View {
     @Environment(\.dismiss) var dismiss
     
@@ -105,7 +106,7 @@ struct FeedbackScreen: View {
                                 .foregroundColor(Color(hex: "#6A6767")).padding(13)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 16) // Optional: add padding inside the button for alignment
+                            .padding(.leading, 16)
                     }
                     .focused($focusedButton, equals: .appFreeze)
                     .buttonStyle(FeedbackButtonStyle(isFocused: isFocusedFreeze(),height: 71, width: 580,cornerRadius: 36))
@@ -124,7 +125,7 @@ struct FeedbackScreen: View {
                                 .foregroundColor(Color(hex: "#6A6767")).padding(13)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 16) // Optional: add padding inside the button for alignment
+                            .padding(.leading, 16)
                     }
                     .focused($focusedButton, equals: .naigate)
                     .buttonStyle(FeedbackButtonStyle(isFocused: isFocusedNavigate(),height: 71, width: 478,cornerRadius: 36))
@@ -143,7 +144,7 @@ struct FeedbackScreen: View {
                                 .foregroundColor(Color(hex: "#6A6767")).padding(13)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 16) // Optional: add padding inside the button for alignment
+                            .padding(.leading, 16)
                     }
                     .focused($focusedButton, equals: .response)
                     .buttonStyle(FeedbackButtonStyle(isFocused: isFocusedResponse(),height: 71, width: 451,cornerRadius: 36))
@@ -173,6 +174,37 @@ struct FeedbackScreen: View {
                                showValidationMessage = true
                            } else {
                                showValidationMessage = false
+                               
+                               
+                               let feedbackTexts: [String] = selectedButtons.map { button in
+                                          switch button {
+                                          case .content:
+                                              return "Content not displaying properly"
+                                          case .appFreeze:
+                                              return "App keeps Freezing or Crashing"
+                                          case .naigate:
+                                              return "Problem with navigation"
+                                          case .response:
+                                              return "Slow Search Response"
+                                          case .money:
+                                              return "Not value for money"
+                                          default:
+                                              return ""
+                                          }
+                                      }
+
+                                      // Join texts for logging or submission
+                                      let feedbackSummary = feedbackTexts.joined(separator: ", ")
+
+                                      // Log to Firebase Analytics
+                                      Analytics.logEvent("tv_search_performed", parameters: [
+                                          "query": feedbackSummary
+                                      ])
+
+                                      print("Feedback submitted: \(feedbackSummary)")
+
+                                      dismiss()
+                                                                  
                            }
                        
                     }) {

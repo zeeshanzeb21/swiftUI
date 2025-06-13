@@ -10,8 +10,7 @@ struct WebDetailScreen: View {
     @State var hrefLink: String
 
     @State private var visitedLinks: [String] = []
-
-
+    
     private var interalLinks: [(Int, Link)] {
         Array(viewModel.links.enumerated())
     }
@@ -74,31 +73,46 @@ struct WebDetailScreen: View {
                     .transition(.opacity.combined(with: .scale))
                     .zIndex(100)
                 }
-            }.focusSection()
-            .onChange(of: focusedField) { oldValue, newFocus in
-                switch newFocus {
-                    
-                case .item(let index):
-                    print(index)
-                    if index == 0 || index == viewModel.links.count - 1 {
+            }
+//            .onChange(of: focusedField) { oldValue, newFocus in
+//                switch newFocus {
+//                    
+//                case .item(let index):
+//                    print(index)
+//                    if index == 0 || index == viewModel.links.count - 1 {
+//                       
+//                    }
+//                default:
+//                    break
+//                }
+//            }
+            .onChange(of: showLinkList) { oldValue, newValue in
+                if newValue {
+                    focusedField = .item(0)
+                }
+            }
+
+            .onMoveCommand { direction in
+                switch (focusedButton, direction) {
+                
+                case (.list, .left):
+                    showLinkList = true
+                    focusedButton = .link
+
+                case (_, .right) where showLinkList:
+                    withAnimation {
                         showLinkList = false
-                        focusedButton = .list
+                        focusedButton = .link
                     }
+
                 default:
                     break
                 }
             }
- //           .onMoveCommand { direction in
- //               switch (focusedButton, direction) {
-//                case (.list, .left):
-//                    focusedButton = .link
-//                case (.list, .right):
-//                    showLinkList = false
-//                    focusedButton = .list
-//                default:
-//                    break
-  //              }
-   //         }
+
+        
+            
+        
         
            
 
@@ -137,10 +151,9 @@ struct WebDetailScreen: View {
                     print("ind \(savedLinks.count)")
                         navigationPath.removeLast()
                     } else {
-                        
+                    
                         dismiss()
                         
-
                     }
             }) {
                 Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
@@ -175,7 +188,6 @@ struct WebDetailScreen: View {
                 }
 
                 
-               
                 
             }) {
                 Image(isFocusedRight() ? "right_focus" : "right_unfocus")
@@ -273,6 +285,7 @@ struct WebDetailScreen: View {
                     }
                     .focused($focusedButton, equals: .settings)
                     .buttonStyle(BorderedButtonStyle(isFocused: isFocusedSetting()))
+                    .disabled(showLinkList)
                 }
                 .padding(.trailing, 0)
             }
@@ -298,10 +311,11 @@ struct WebDetailScreen: View {
                                      placeholderHeight: 150
                                  )
                              }
-                         }.focusSection()
+                         }
                      }
                      .focused($focusedButton, equals: .list)
-                     .focusSection()
+                     .disabled(showLinkList || showSettingsPopup)
+                    
                  }
             
 
@@ -311,21 +325,21 @@ struct WebDetailScreen: View {
                     Spacer()
                     
                     ZStack(alignment: .trailing) {
-//                        if showLinkList {
-//                            linkListView
-//                                .frame(width: 300)
-//                                .frame(maxHeight: .infinity)
-//                                .background(Color.white)
-//                                .ignoresSafeArea()
-//                                .cornerRadius(16)
-//                                .transition(.move(edge: .trailing))
-//                                .animation(.easeInOut, value: showLinkList)
-//                                .overlay(
-//                                    RoundedRectangle(cornerRadius: 16)
-//                                        .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
-//                                    
-//                                )
-//                        }
+                        if showLinkList {
+                            linkListView
+                                .frame(width: 300)
+                                .frame(maxHeight: .infinity)
+                                .background(Color.white)
+                                .ignoresSafeArea()
+                                .cornerRadius(16)
+                                .transition(.move(edge: .trailing))
+                                .animation(.easeInOut, value: showLinkList)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
+                                    
+                                )
+                        }
                         
                         Button(action: {
                             withAnimation {
@@ -340,6 +354,7 @@ struct WebDetailScreen: View {
                         .focused($focusedButton, equals: .link)
                         .offset(x: showLinkList ? -330 + 36 : 0)
                         .animation(.easeInOut, value: showLinkList)
+                        .disabled(showSettingsPopup)
                     }
                 }
                 Spacer()
@@ -368,6 +383,7 @@ struct WebDetailScreen: View {
         }
     }
 
+   
 
     @ViewBuilder
     private func listView(index: Int, links: Link) -> some View {
