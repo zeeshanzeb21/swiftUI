@@ -1,6 +1,6 @@
 import SwiftUI
 import StoreKit
-
+import FirebaseAnalytics
 struct RateUs: View {
     @Environment(\.dismiss) var dismiss
     @FocusState private var focusedButton: FocusableButton?
@@ -51,6 +51,10 @@ struct RateUs: View {
 
                 HStack(spacing: 10) {
                     Button(action: {
+                        Analytics.logEvent("rate_us_liked", parameters: [
+                            "query": "Rate Us Liked btn pressed"
+                        ])
+                        
                         let appStoreURL = URL(string: "https://apps.apple.com/pk/app/sco-video-tutorials/id1142206124")!
                             UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
                     }) {
@@ -64,6 +68,10 @@ struct RateUs: View {
                     Spacer().frame(width: 30)
 
                     Button(action: {
+                        Analytics.logEvent("rate_us_feedback", parameters: [
+                            "query": "Rate Us Feedback btn pressed"
+                        ])
+                        
                         navigationPath.append(.feedbackScreen)
                     }) {
                         Image(isFocusedRight() ? "feedback_focused" : "feedback_unfocused")

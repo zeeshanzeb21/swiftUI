@@ -193,12 +193,10 @@ struct FeedbackScreen: View {
                                           }
                                       }
 
-                                      // Join texts for logging or submission
                                       let feedbackSummary = feedbackTexts.joined(separator: ", ")
 
-                                      // Log to Firebase Analytics
-                                      Analytics.logEvent("tv_search_performed", parameters: [
-                                          "query": feedbackSummary
+                                      Analytics.logEvent("feedback_\(feedbackSummary)_submitted", parameters: [
+                                          "query": "User selected particular feedback"
                                       ])
 
                                       print("Feedback submitted: \(feedbackSummary)")

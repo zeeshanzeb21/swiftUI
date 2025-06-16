@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import FirebaseAnalytics
 class WebViewModel: ObservableObject {
     
     @Published var searchData =  [DataModel]()
@@ -21,7 +22,9 @@ class WebViewModel: ObservableObject {
         dataManager.fetchData(query: query, searchType: searchType, start: start, limit: limit)
             .sink { [weak self] dataResponse in
                 guard let self = self else { return }
-                
+                Analytics.logEvent("ud_call_sent", parameters: [
+                    "query": "user data request sent"
+                ])
                 self.showLoading = false
                 UserDefaults.standard.removeObject(forKey: "SavedLinks")
                 UserDefaults.standard.removeObject(forKey: "CurrentLinkIndex")
@@ -29,9 +32,18 @@ class WebViewModel: ObservableObject {
                 
                 if let error = dataResponse.error {
                     self.createAlert(with: error)
+                    Analytics.logEvent("error_\(error.localizedDescription)", parameters: [
+                        "query": "error type when occurred"
+                    ])
+                    Analytics.logEvent("ud_call_failed_\(error.localizedDescription)", parameters: [
+                        "query": "user data request call response failed with response"
+                    ])
                 } else {
                     self.searchData = dataResponse.value?.data ?? []
                     self.totalPages = dataResponse.value?.total ?? 0
+                    Analytics.logEvent("ud_call_success", parameters: [
+                        "query": "When user data request call received successfully"
+                    ])
                 }
             }
             .store(in: &cancellableSet)

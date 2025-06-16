@@ -1,5 +1,5 @@
 import SwiftUI
-
+import FirebaseAnalytics
 struct SettingsPopupView: View {
     let onClose: () -> Void
     @Binding var navigationPath: [Route]
@@ -53,9 +53,15 @@ struct SettingsPopupView: View {
                 onClose()
             case .howToUse:
                 navigationPath.append(.howToUse)
+                Analytics.logEvent("setting_guide_btn_pressed", parameters: [
+                    "query": "Guide Btn pressed from Settings"
+                ])
                 onClose()
             case .rateUs:
                 navigationPath.append(.rateUs)
+                Analytics.logEvent("setting_feedback_btn_pressed", parameters: [
+                    "query": "Feedback btn pressed from Settings"
+                ])
                 onClose()
             }
         }) {

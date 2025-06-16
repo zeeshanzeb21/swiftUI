@@ -5,6 +5,7 @@
 //  Created by Invicttus on 23/05/2025.
 //
 
+import FirebaseAnalytics
 import SwiftUI
 struct WebScreen: View {
     @Environment(\.dismiss) var dismiss
@@ -253,6 +254,37 @@ struct WebScreen: View {
                                     Button(action: {
                                         print("Settings tapped")
                                         showSettingsPopup = true
+                                        Analytics.logEvent("setting__btn_pressed", parameters: [
+                                            "query": "Setting btn pressed from Home screen"
+                                        ])
+                                        if(searchType == "general")
+                                        {
+                                            Analytics.logEvent("setting_web_btn_pressed", parameters: [
+                                                "query": "Setting btn pressed from web screen"
+                                            ])
+
+                                        }
+                                        else if(searchType == "isch"){
+                                            Analytics.logEvent("setting_image_btn_pressed", parameters: [
+                                                "query": "Setting btn pressed from web_image screen"
+                                            ])
+                                        }
+                                        else if(searchType == "videos"){
+                                            Analytics.logEvent("setting_videos_btn_pressed", parameters: [
+                                                "query": "Setting btn pressed from web_videos screen"
+                                            ])
+                                        }
+                                        else if(searchType == "news"){
+                                            Analytics.logEvent("setting_news_btn_pressed", parameters: [
+                                                "query": "Setting btn pressed from web_news screen"
+                                            ])
+                                        }
+                                        else if(searchType == "shopping"){
+                                            Analytics.logEvent("setting_shopping_btn_pressed", parameters: [
+                                                "query": "Setting btn pressed from web_shopping screen"
+                                            ])
+                                        }
+                                        
                                     }) {
                                         Image(isFocusedSetting() ? "setting_focus" : "setting")
                                             .resizable()
@@ -276,6 +308,16 @@ struct WebScreen: View {
                     HStack(spacing: 20) {
                         Button(action: {
                             searchType =  "general"
+                            Analytics.logEvent("search_web", parameters: [
+                                "query": "Search is requested from web"
+                            ])
+                            Analytics.logEvent("web_tab_btn_pressed", parameters: [
+                                "query": "Web Tab Button Pressed"
+                            ])
+                            Analytics.logEvent("web view", parameters: [
+                                "query": "Web screen viewed"
+                            ])
+                            
                             start = 0
                             limit = 10
                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
@@ -294,6 +336,15 @@ struct WebScreen: View {
                         .focused($focusedButton, equals: .web)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
                         Button(action: {
+                            Analytics.logEvent("search_image", parameters: [
+                                "query": "Search is requested from image"
+                            ])
+                            Analytics.logEvent("image_tab_btn_pressed", parameters: [
+                                "query": "Image Tab Button Pressed"
+                            ])
+                            Analytics.logEvent("image view", parameters: [
+                                "query": "image screen viewed"
+                            ])
                             searchType =  "isch"
                             start = 0
                             limit = 10
@@ -313,6 +364,15 @@ struct WebScreen: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
                         Button(action: {
                             searchType = "videos"
+                            Analytics.logEvent("search_videos", parameters: [
+                                "query": "Search is requested from videos"
+                            ])
+                            Analytics.logEvent("video_tab_btn_pressed", parameters: [
+                                "query": "Video Tab Button Pressed"
+                            ])
+                            Analytics.logEvent("video view", parameters: [
+                                "query": "video screen viewed"
+                            ])
                         }) {
                             HStack(spacing: 8) {
                                 Image(isFocusedVideos() ? "video_focus"
@@ -329,6 +389,15 @@ struct WebScreen: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
                         Button(action: {
                             searchType = "news"
+                            Analytics.logEvent("search_news", parameters: [
+                                "query": "Search is requested from news"
+                            ])
+                            Analytics.logEvent("news_tab_btn_pressed", parameters: [
+                                "query": "News Tab Button Pressed"
+                            ])
+                            Analytics.logEvent("news view", parameters: [
+                                "query": "news screen viewed"
+                            ])
                         }) {
                             HStack(spacing: 8) {
                                 Image(isFocusedNews() ? "news_focus" :"news")
@@ -344,6 +413,15 @@ struct WebScreen: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
                         Button(action: {
                             searchType = "shopping"
+                            Analytics.logEvent("search_shop", parameters: [
+                                "query": "Search is requested from shop"
+                            ])
+                            Analytics.logEvent("shop_tab_btn_pressed", parameters: [
+                                "query": "Shopping Tab Button Pressed"
+                            ])
+                            Analytics.logEvent("shopping view", parameters: [
+                                "query": "shopping screen viewed"
+                            ])
                             
                         }) {
                             HStack(spacing: 8) {
@@ -371,6 +449,9 @@ struct WebScreen: View {
                                             UserDefaults.standard.set(article.links, forKey: "links")
                                             UserDefaults.standard.set(searchText, forKey: "search")
                                             navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
+                                            Analytics.logEvent("web_result_open", parameters: [
+                                                "message": "Search Result Web Link Open \(link)"
+                                            ])
 
                                         }
                                     }
@@ -397,6 +478,10 @@ struct WebScreen: View {
                                                 UserDefaults.standard.set(article.link, forKey: "links")
                                                 UserDefaults.standard.set(searchText, forKey: "search")
                                                 navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
+                                                Analytics.logEvent("image_result_open", parameters: [
+                                                    "message": "Search Result Image Link Open \(link)"
+                                                ])
+
                                             }
                                                 .frame(width: 430, height: 460)
                                                 .background(Color.white)
@@ -417,6 +502,7 @@ struct WebScreen: View {
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                                 focusedField = .item(0)
                                             }
+                                            
                                             
                                             
                                         }) {

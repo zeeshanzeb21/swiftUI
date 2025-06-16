@@ -1,5 +1,5 @@
 import SwiftUI
-
+import FirebaseAnalytics
 struct WebDetailScreen: View {
     @FocusState private var focusedButton: FocusableButton?
     @ObservedObject var viewModel = DetailViewModel()
@@ -349,6 +349,12 @@ struct WebDetailScreen: View {
                         Button(action: {
                             withAnimation {
                                 showLinkList.toggle()
+                                if(showLinkList == true)
+                                {
+                                    Analytics.logEvent("internal_link_tab_open", parameters: [
+                                        "query": "User opens an internal links tab in the webpage"
+                                    ])
+                                }
                             }
                         }) {
                             Image(isFocusedLink() ? "link_btn_focus" : "link_btn_unfocus")

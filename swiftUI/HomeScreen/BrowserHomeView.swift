@@ -101,6 +101,10 @@ struct BrowserHomeView: View {
                                 Button(action: {
                                     print("Settings tapped")
                                     showSettingsPopup = true
+                                    Analytics.logEvent("setting_home_btn_pressed", parameters: [
+                                        "query": "Setting btn pressed from Home screen"
+                                    ])
+                                    
                                     
                                 }) {
                                     Image(isFocusedSetting() ? "setting_focus" : "setting")
@@ -185,6 +189,15 @@ struct BrowserHomeView: View {
                                 if(searchText.isEmpty == false)
                                 {
                                     
+                                    Analytics.logEvent("search_manual", parameters: [
+                                        "query": "Text search is requested \(searchText)"
+                                    ])
+                                    
+                                    Analytics.logEvent("search_via_button", parameters: [
+                                        "query": "User search through on screen search button \(searchText)"
+                                    ])
+                                    
+                                    
                                     path.append(.web(searchText: searchText, searchType: "general"))
 
                                 }
@@ -213,7 +226,9 @@ struct BrowserHomeView: View {
                             print("Tapped")
                             if(searchText.isEmpty == false)
                             {
-                                
+                                Analytics.logEvent("search_direct_image", parameters: [
+                                    "query": "Direct Search is requested via image \(searchText)"
+                                ])
                                 path.append(.web(searchText: searchText, searchType: "isch"))
 
                             }
@@ -238,7 +253,9 @@ struct BrowserHomeView: View {
                         .focused($focusedButton, equals: .images)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
-                            print("Tapped")
+                            Analytics.logEvent("search_direct_youtube", parameters: [
+                                "query": "Direct Search is requested via youtube \(searchText)"
+                            ])
                         }) {
                 
                             HStack(spacing: 8) {
@@ -259,6 +276,9 @@ struct BrowserHomeView: View {
                             {
                                 
                                 let twitchUrl = "https://www.twitch.tv/search?term="
+                                Analytics.logEvent("search_direct_twitch", parameters: [
+                                    "query": "Direct Search is requested via twitch \(twitchUrl + searchText)"
+                                ])
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -288,6 +308,9 @@ struct BrowserHomeView: View {
                             {
                                 
                                 let twitchUrl = "https://en.wikipedia.org/wiki/Special:Search?search="
+                                Analytics.logEvent("search_direct_wikipedia", parameters: [
+                                    "query": "Direct Search is requested via wikipedia \(twitchUrl + searchText)"
+                                ])
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -313,6 +336,9 @@ struct BrowserHomeView: View {
                             {
                                 
                                 let twitchUrl = "https://www.ebay.com/sch/i.html?_n="
+                                Analytics.logEvent("search_direct_ebay", parameters: [
+                                    "query": "Direct Search is requested via ebay \(twitchUrl + searchText)"
+                                ])
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -338,6 +364,9 @@ struct BrowserHomeView: View {
                             {
                                 
                                 let twitchUrl = "https://www.pinterest.com/search/pins/?q="
+                                Analytics.logEvent("search_direct_pinterest", parameters: [
+                                    "query": "Direct Search is requested via pinterest \(twitchUrl + searchText)"
+                                ])
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -384,6 +413,9 @@ struct BrowserHomeView: View {
                 }
             }.onAppear {
                 focusedButton = .premium
+                Analytics.logEvent("home_view)", parameters: [
+                    "query": "home screen viewed"
+                ])
             }
             .navigationDestination(for: Route.self) { route in
                    switch route {
