@@ -18,11 +18,13 @@ import SwiftUI
 struct WebDetailStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
-           configuration.label
+        configuration.label
                
 
        }
 }
+
+
 
 struct WebDetailStyle_Previews: PreviewProvider {
     static var previews: some View {

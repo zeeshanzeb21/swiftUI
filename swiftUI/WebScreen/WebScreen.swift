@@ -21,6 +21,7 @@ struct WebScreen: View {
     @State private var isNavigated = false
     @State private var link: String = ""
     @State private var showSettingsPopup = false
+    @State  var navigeteRight: Bool = true
 
     
     
@@ -152,8 +153,11 @@ struct WebScreen: View {
                             print("Settings tapped")
                             let link = UserDefaults.standard.string(forKey: "links")
                             let search = UserDefaults.standard.string(forKey: "search")
-
-                            navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+                            print("ejdhcvgdv\(String(describing: link))")
+                            if(link != nil)
+                            {
+                                navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+                            }
 
                             
                             

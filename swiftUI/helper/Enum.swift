@@ -8,7 +8,7 @@
 import Foundation
 
 enum Route: Hashable {
-    case web(searchText: String, searchType: String)
+    case web(searchText: String, searchType: String,navigateRight: Bool)
     case webDetail(searchText: String, hrefLink: String)
     case howToUse
     case rateUs

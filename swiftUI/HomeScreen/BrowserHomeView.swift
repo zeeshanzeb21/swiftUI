@@ -139,17 +139,17 @@ struct BrowserHomeView: View {
                         
                         HStack(spacing: 0) {
                             // Mic button
-                            Button(action: {
-                                print("Tapped mic")
-                            }) {
-                                Image("mic")
-                                    .resizable()
-                                    .frame(width: 84, height: 77)
-                            }
-                            .focused($focusedButton, equals: .mic)
-                            .buttonStyle(.plain)
-                            .focusable(false)
-                            .offset(x: -26)
+//                            Button(action: {
+//                                print("Tapped mic")
+//                            }) {
+//                                Image("mic")
+//                                    .resizable()
+//                                    .frame(width: 84, height: 77)
+//                            }
+//                            .focused($focusedButton, equals: .mic)
+//                            .buttonStyle(.plain)
+//                            .focusable(false)
+//                            .offset(x: -26)
                             
                             if searchText.isEmpty {
                                 Text(placeholderText)
@@ -167,7 +167,8 @@ struct BrowserHomeView: View {
                             TextField("Search Here...", text: $searchText)
                                 .foregroundColor(Color(hex: "#6A6767"))
                                 .font(.system(size: 30, weight: .regular))
-                                .padding(.leading, 0)
+                                .padding(.leading, 10)
+                                .padding(.trailing, 10)
                                 .background(Color.clear)
                                 .textFieldStyle(.plain)
                                 .focused($focusedButton, equals: .search)
@@ -197,8 +198,9 @@ struct BrowserHomeView: View {
                                         "query": "User search through on screen search button \(searchText)"
                                     ])
                                     
-                                    
-                                    path.append(.web(searchText: searchText, searchType: "general"))
+                                    UserDefaults.standard.removeObject(forKey: "links")
+                                    UserDefaults.standard.removeObject(forKey: "search")
+                                    path.append(.web(searchText: searchText, searchType: "general", navigateRight: false))
 
                                 }
                                 else
@@ -229,7 +231,9 @@ struct BrowserHomeView: View {
                                 Analytics.logEvent("search_direct_image", parameters: [
                                     "query": "Direct Search is requested via image \(searchText)"
                                 ])
-                                path.append(.web(searchText: searchText, searchType: "isch"))
+                                UserDefaults.standard.removeObject(forKey: "links")
+                                UserDefaults.standard.removeObject(forKey: "search")
+                                path.append(.web(searchText: searchText, searchType: "isch", navigateRight: false))
 
                             }
                             else
@@ -256,6 +260,8 @@ struct BrowserHomeView: View {
                             Analytics.logEvent("search_direct_youtube", parameters: [
                                 "query": "Direct Search is requested via youtube \(searchText)"
                             ])
+                            UserDefaults.standard.removeObject(forKey: "links")
+                            UserDefaults.standard.removeObject(forKey: "search")
                         }) {
                 
                             HStack(spacing: 8) {
@@ -279,6 +285,8 @@ struct BrowserHomeView: View {
                                 Analytics.logEvent("search_direct_twitch", parameters: [
                                     "query": "Direct Search is requested via twitch \(twitchUrl + searchText)"
                                 ])
+                                UserDefaults.standard.removeObject(forKey: "links")
+                                UserDefaults.standard.removeObject(forKey: "search")
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -311,6 +319,8 @@ struct BrowserHomeView: View {
                                 Analytics.logEvent("search_direct_wikipedia", parameters: [
                                     "query": "Direct Search is requested via wikipedia \(twitchUrl + searchText)"
                                 ])
+                                UserDefaults.standard.removeObject(forKey: "links")
+                                UserDefaults.standard.removeObject(forKey: "search")
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -339,6 +349,8 @@ struct BrowserHomeView: View {
                                 Analytics.logEvent("search_direct_ebay", parameters: [
                                     "query": "Direct Search is requested via ebay \(twitchUrl + searchText)"
                                 ])
+                                UserDefaults.standard.removeObject(forKey: "links")
+                                UserDefaults.standard.removeObject(forKey: "search")
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -367,6 +379,8 @@ struct BrowserHomeView: View {
                                 Analytics.logEvent("search_direct_pinterest", parameters: [
                                     "query": "Direct Search is requested via pinterest \(twitchUrl + searchText)"
                                 ])
+                                UserDefaults.standard.removeObject(forKey: "links")
+                                UserDefaults.standard.removeObject(forKey: "search")
                                 path.append(.webDetail(searchText: searchText, hrefLink: twitchUrl + searchText))
                             }
                             else
@@ -419,8 +433,8 @@ struct BrowserHomeView: View {
             }
             .navigationDestination(for: Route.self) { route in
                    switch route {
-                   case .web(let searchText, let searchType):
-                       WebScreen(searchText: searchText, searchType: searchType, navigationPath: $path, viewID: UUID())
+                   case .web(let searchText, let searchType,let navigateRight):
+                       WebScreen(searchText: searchText, searchType: searchType, navigeteRight: navigateRight, navigationPath: $path, viewID: UUID())
                    case .webDetail(let searchText, let hrefLink):
                        WebDetailScreen(searchText: searchText, hrefLink: hrefLink,viewID: UUID(), navigationPath: $path)
                    case .howToUse:

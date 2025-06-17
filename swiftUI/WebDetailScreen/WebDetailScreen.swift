@@ -124,11 +124,6 @@ struct WebDetailScreen: View {
                 }
             }
             
-//            .onAppear {
-//                focusedButton = .search
-//                
-//                viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
-//            }
             .task(id: viewID) {
                 focusedButton = .search
                 viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
@@ -154,6 +149,7 @@ struct WebDetailScreen: View {
                       UserDefaults.standard.setCurrentLinkIndex(currentIndex)
                     let savedLinks = UserDefaults.standard.getSavedLinks()
                     print("ind \(savedLinks.count)")
+                    print("currentIndex \(currentIndex)")
                         navigationPath.removeLast()
                     } else {
                     
@@ -178,7 +174,8 @@ struct WebDetailScreen: View {
                 let savedLinks = UserDefaults.standard.getSavedLinks()
                 var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
                 let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
-            
+                print("currentIndex \(currentIndex)")
+                print("currentIndex \(savedLinks)")
 
                 if currentIndex < savedLinks.count {
                     let nextLink = savedLinks[currentIndex]
@@ -407,6 +404,18 @@ struct WebDetailScreen: View {
             UserDefaults.standard.setCurrentLinkIndex(currentIndex)
             navigationPath.append(.webDetail(searchText: searchText, hrefLink: links.href ?? ""))
             showLinkList = false
+            
+            var savedLinks = UserDefaults.standard.getSavedLinks()
+            var currentInd = UserDefaults.standard.getCurrentLinkIndex()
+            
+            if currentIndex < savedLinks.count {
+                   savedLinks = Array(savedLinks.prefix(currentIndex))
+                   UserDefaults.standard.set(savedLinks, forKey: "SavedLinks")
+               }
+            
+            print("hello")
+            print("currentIndex \(currentInd)")
+            print("currentIndex \(savedLinks)")
 
             
         }) {
