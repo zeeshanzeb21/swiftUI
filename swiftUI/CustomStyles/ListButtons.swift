@@ -16,7 +16,7 @@ struct ListButtonStyle: ButtonStyle {
            configuration.label
                .padding(EdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0))
                .frame(width: width, height: height, alignment: .topLeading)
-               .background(Color(hex: "#DDDDDD").opacity(0.2))
+               .background(Color(hex: "#DDDDDD").opacity(0.1))
                .overlay(
                    RoundedRectangle(cornerRadius: 20)
                        .stroke(
@@ -25,7 +25,6 @@ struct ListButtonStyle: ButtonStyle {
                        )
                )
                .cornerRadius(20)
-               .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
                .padding(.horizontal, 16) // external spacing between cards
        }
 }

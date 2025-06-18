@@ -616,12 +616,17 @@ struct WebScreen: View {
                             .padding(.top, 20)
                             .padding(.leading, 26)
                     } else {
-                        Color.red
-                            .frame(width: 62, height: 62)
-                            .cornerRadius(8)
-                            .padding(.top, 32)
-                            .padding(.leading, 30)
-                            .overlay(Text("Failed").foregroundColor(.white).font(.caption))
+                        ZStack {
+                            Color.red
+                                .frame(width: 62, height: 62)
+                                .cornerRadius(8)
+
+                            Text("Failed")
+                                .foregroundColor(.white)
+                                .font(.caption)
+                        }
+                        .padding(.top, 32)
+                        .padding(.leading, 30)
                     }
                     
                     VStack(alignment: .leading, spacing: 0) {

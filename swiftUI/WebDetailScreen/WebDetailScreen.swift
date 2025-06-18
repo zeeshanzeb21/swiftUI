@@ -406,7 +406,7 @@ struct WebDetailScreen: View {
             showLinkList = false
             
             var savedLinks = UserDefaults.standard.getSavedLinks()
-            var currentInd = UserDefaults.standard.getCurrentLinkIndex()
+            let currentInd = UserDefaults.standard.getCurrentLinkIndex()
             
             if currentIndex < savedLinks.count {
                    savedLinks = Array(savedLinks.prefix(currentIndex))

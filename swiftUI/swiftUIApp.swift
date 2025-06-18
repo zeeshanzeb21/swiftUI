@@ -12,12 +12,27 @@ import Foundation
 @main
 struct swiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @State private var isActive: Bool = true
+
 
     var body: some Scene {
 
+//        WindowGroup {
+//                BrowserHomeView(searchText: "")
+//            }
+        
         WindowGroup {
-                BrowserHomeView(searchText: "")
+            ZStack {
+                if isActive {
+                    SplashScreenView(isActive: $isActive)
+                        .transition(.opacity)
+                } else {
+                    BrowserHomeView(searchText: "")
+                        .transition(.opacity)
+                }
             }
+        }
+
 
     }
 }
