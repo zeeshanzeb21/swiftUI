@@ -66,38 +66,43 @@ struct HowToUseScreen: View {
                 Spacer()
                 
                 HStack(spacing: 44) {
-                    Button(action: {
-                        // 4. Handle Previous button
-                        if currentIndex == 0 {
-                            // At first page, dismiss on Previous
-                            dismiss()
-                        } else {
-                            currentIndex -= 1
+                    if(currentIndex > 0)
+                    {
+                        Button(action: {
+                            // 4. Handle Previous button
+                            if currentIndex == 0 {
+                                // At first page, dismiss on Previous
+                                dismiss()
+                            } else {
+                                currentIndex -= 1
+                            }
+                        }) {
+                            Text("Previous")
+                                .font(.system(size: 34, weight: .medium))
+                                .foregroundColor(isFocusedLeft() ? Color.white : Color(hex: "#3C3B3B").opacity(0.52))
+                                .frame(width: 334, height: 80)
                         }
-                    }) {
-                        Text("Previous")
-                            .font(.system(size: 34, weight: .medium))
-                            .foregroundColor(isFocusedLeft() ? Color.white : Color(hex: "#3C3B3B").opacity(0.52))
-                            .frame(width: 334, height: 80)
+                        .focused($focusedButton, equals: .left)
+                        .buttonStyle(PremiumButton(isFocused: isFocusedLeft(), width: 334, height: 80, cornerRadius: 53))
                     }
-                    .focused($focusedButton, equals: .left)
-                    .buttonStyle(PremiumButton(isFocused: isFocusedLeft(), width: 334, height: 80, cornerRadius: 53))
-                    
-                    Button(action: {
-                        // 4. Handle Next button safely
-                        if currentIndex < pages.count - 1 {
-                            currentIndex += 1
+                    if currentIndex < pages.count - 1 {
+                        Button(action: {
+                            // 4. Handle Next button safely
+                            if currentIndex < pages.count - 1 {
+                                currentIndex += 1
+                            }
+                        }) {
+                            Text("Next")
+                                .font(.system(size: 34, weight: .medium))
+                                .foregroundColor(isFocusedRight() ? Color.white : Color(hex: "#3C3B3B").opacity(0.52))
+                                .frame(width: 334, height: 80)
                         }
-                    }) {
-                        Text("Next")
-                            .font(.system(size: 34, weight: .medium))
-                            .foregroundColor(isFocusedRight() ? Color.white : Color(hex: "#3C3B3B").opacity(0.52))
-                            .frame(width: 334, height: 80)
+                        .focused($focusedButton, equals: .right)
+                        .buttonStyle(PremiumButton(isFocused: isFocusedRight(), width: 334, height: 80, cornerRadius: 53))
                     }
-                    .focused($focusedButton, equals: .right)
-                    .buttonStyle(PremiumButton(isFocused: isFocusedRight(), width: 334, height: 80, cornerRadius: 53))
                 }.focusSection()
                 .padding(.bottom, 20)
+                    
             }
             .focusSection()
             .onAppear {
@@ -107,6 +112,7 @@ struct HowToUseScreen: View {
         .onMoveCommand { direction in
             switch (focusedButton, direction) {
             case (.cross, .down):
+                focusedButton = .right
                 focusedButton = .left
             default:
                 break
