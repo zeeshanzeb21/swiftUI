@@ -138,18 +138,17 @@ struct BrowserHomeView: View {
 
                         
                         HStack(spacing: 0) {
-                            // Mic button
-//                            Button(action: {
-//                                print("Tapped mic")
-//                            }) {
-//                                Image("mic")
-//                                    .resizable()
-//                                    .frame(width: 84, height: 77)
-//                            }
-//                            .focused($focusedButton, equals: .mic)
-//                            .buttonStyle(.plain)
-//                            .focusable(false)
-//                            .offset(x: -26)
+                            Button(action: {
+                                print("Tapped mic")
+                            }) {
+                                Image("mic")
+                                    .resizable()
+                                    .frame(width: 84, height: 77)
+                            }
+                            .focused($focusedButton, equals: .mic)
+                            .buttonStyle(.plain)
+                            .focusable(false)
+                            .offset(x: -26)
                             
                             if searchText.isEmpty {
                                 Text(placeholderText)

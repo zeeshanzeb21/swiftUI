@@ -225,11 +225,27 @@ struct WebScreen: View {
                                                     lineWidth: 4
                                                 )
                                         )
+                                    HStack
+                                    {
+                                        Button(action: {
+                                            print("Tapped mic")
+                                        }) {
+                                            Image("mic")
+                                                .resizable()
+                                                .frame(width: 84, height: 77)
+                                        }
+                                        
+                                        .buttonStyle(.plain)
+                                        .focusable(false)
+                                        .offset(x: 52)
+                                        
+                                        Text(searchText.isEmpty ? "Search Here..." : searchText)
+                                            .foregroundColor(Color(hex: "#6A6767"))
+                                            .font(.system(size: 30, weight: .regular))
+                                            .frame(width: 1000, alignment: .leading)
+                                            .padding(.leading, 10)
+                                    }
                                     
-                                    Text(searchText.isEmpty ? "Search Here..." : searchText)
-                                        .foregroundColor(Color(hex: "#6A6767"))
-                                        .font(.system(size: 30, weight: .regular))
-                                        .frame(width: 1000, alignment: .leading)
                                     
                                 }
                             }
