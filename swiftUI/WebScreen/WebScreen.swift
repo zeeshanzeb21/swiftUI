@@ -215,35 +215,21 @@ struct WebScreen: View {
                                 focusedButton = .search
                             }) {
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .fill(Color.white)
-                                        .frame(width: 1050, height: 80)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 40)
-                                                .stroke(
-                                                    isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-                                                    lineWidth: 4
-                                                )
-                                        )
+                                    
+                                    Image(isFocusedSearch() ? "search_focus": "search_simple")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 950, height: 80)
+                                            .clipped()
+                                    
                                     HStack
                                     {
-                                        Button(action: {
-                                            print("Tapped mic")
-                                        }) {
-                                            Image("mic")
-                                                .resizable()
-                                                .frame(width: 84, height: 77)
-                                        }
-                                        
-                                        .buttonStyle(.plain)
-                                        .focusable(false)
-                                        .offset(x: 52)
                                         
                                         Text(searchText.isEmpty ? "Search Here..." : searchText)
                                             .foregroundColor(Color(hex: "#6A6767"))
                                             .font(.system(size: 30, weight: .regular))
-                                            .frame(width: 1000, alignment: .leading)
-                                            .padding(.leading, 10)
+                                            .frame(width: 800, alignment: .leading)
+                                            .padding(.leading, 40)
                                     }
                                     
                                     
