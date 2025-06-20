@@ -645,6 +645,7 @@ struct WebScreen: View {
                         Text(article.links ?? "")
                             .font(.system(size: 18))
                             .foregroundColor(Color(hex: "#3C3B3B"))
+                            .padding(.top, 4)
                     }
                 }
                 

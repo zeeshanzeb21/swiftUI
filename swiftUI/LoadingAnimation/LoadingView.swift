@@ -36,7 +36,7 @@ struct LoadingView: View {
                     Text(allMessages[currentMessageIndex])
                         .font(Font.custom("Saira-Bold", size: 20))
                         .foregroundColor(Color(hex: "#6A6767"))
-                        .padding(.bottom, 40)
+                        .padding(.bottom, 10)
                         .transition(.opacity)
                         .id(currentMessageIndex) // To trigger transition
                 }
@@ -49,7 +49,7 @@ struct LoadingView: View {
     }
     
     private func startMessageRotation() {
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { timer in
             withAnimation {
                 showMessage = false
             }

@@ -95,7 +95,7 @@ struct BrowserHomeView: View {
                                             .font(.system( size: 31,weight: .bold, design: .default))
                                             .foregroundColor(isFocusedPremium() ? .white : Color(hex: "#3C3B3B")).padding(8)
                                     }
-                                }
+                                }.padding(.bottom, 30)
                                 .focused($focusedButton, equals: .premium)
                                 .buttonStyle(PremiumButton(isFocused: isFocusedPremium(),width: 260,height: 80, cornerRadius: 53))
                                 Button(action: {
@@ -111,7 +111,7 @@ struct BrowserHomeView: View {
                                         .resizable()
                                         .frame(width: 45, height: 45)
                                         .padding(8)
-                                }
+                                }.padding(.bottom, 30)
                                 .focused($focusedButton, equals: .settings)
                                 .buttonStyle(BorderedButtonStyle(isFocused: isFocusedSetting()))
                             }
