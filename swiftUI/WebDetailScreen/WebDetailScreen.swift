@@ -48,11 +48,15 @@ struct WebDetailScreen: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
+//                if viewModel.showLoading {
+//                    Text("Please wait! we are fetching results")
+//                        .font(Font.custom("Saira-Bold", size: 35))
+//                        .foregroundColor(Color(hex: "#3C3B3B"))
+//                        .padding(.top, 6)
+//                }
+                
                 if viewModel.showLoading {
-                    Text("Please wait! we are fetching results")
-                        .font(Font.custom("Saira-Bold", size: 35))
-                        .foregroundColor(Color(hex: "#3C3B3B"))
-                        .padding(.top, 6)
+                    LoadingView()
                 }
                 
                 VStack(alignment: .leading) {
@@ -302,9 +306,7 @@ struct WebDetailScreen: View {
             
             
             if imageLoader.isLoading {
-                Text("Just a moment — we're loading your results.")
-                    .font(Font.custom("Saira-Bold", size: 35))
-                    .foregroundColor(Color(hex: "#3C3B3B"))
+                LoadingView()
                 
                  } else {
                      ScrollView(.vertical, showsIndicators: false) {

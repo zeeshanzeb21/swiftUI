@@ -105,15 +105,20 @@ struct WebScreen: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                if viewModel.showLoading == true{
-                    ZStack {
-                        Text("Please wait! we are fetching results")
-                            .font(Font.custom("Saira-Bold", size: 35))
-                            .foregroundColor(Color(hex: "#3C3B3B"))
-                            .padding(.top, 6)
-                            .padding(.leading, 10)
-                    }
+//                if viewModel.showLoading == true{
+//                    ZStack {
+//                        Text("Please wait! we are fetching results")
+//                            .font(Font.custom("Saira-Bold", size: 35))
+//                            .foregroundColor(Color(hex: "#3C3B3B"))
+//                            .padding(.top, 6)
+//                            .padding(.leading, 10)
+//                    }
+//                }
+                
+                if viewModel.showLoading {
+                    LoadingView()
                 }
+
                 
                 
                 
@@ -752,7 +757,7 @@ struct WebScreen: View {
         }
     }
 
-    
+
     
 }
 
