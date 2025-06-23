@@ -134,6 +134,7 @@ struct WebScreen: View {
                 }
                 
                 
+                
                 VStack(alignment: .leading) {
                     HStack(spacing: 0) {
                         Button(action: {
@@ -343,7 +344,7 @@ struct WebScreen: View {
                                     .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79"))
                                         .padding(4)
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                         .focused($focusedButton, equals: .web)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
                         Button(action: {
@@ -370,7 +371,7 @@ struct WebScreen: View {
                                     .font(.system(size: 28,weight: .medium,design: .default))
                                     .foregroundColor(isFocusedImages() ? .white : Color(hex: "#005C79")).padding(4)
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                         .focused($focusedButton, equals: .images)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
                         Button(action: {
@@ -395,7 +396,7 @@ struct WebScreen: View {
                                     .font(.system(size: 28,weight: .medium,design: .default))
                                     .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                         .focused($focusedButton, equals: .videos)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
                         Button(action: {
@@ -419,7 +420,7 @@ struct WebScreen: View {
                                     .font(.system(size: 28,weight: .medium,design: .default))
                                     .foregroundColor(isFocusedNews() ? .white : Color(hex: "#005C79")).padding(4)
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                         .focused($focusedButton, equals: .news)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
                         Button(action: {
@@ -444,7 +445,7 @@ struct WebScreen: View {
                                     .font(.system(size: 28,weight: .medium,design: .default))
                                     .foregroundColor(isFocusedShopping() ? .white : Color(hex: "#005C79")).padding(4)
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                         .focused($focusedButton, equals: .shopping)
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedShopping(),height: 60, width: 255,cornerRadius: 30))
                     }.padding(.top, 4)
@@ -549,7 +550,7 @@ struct WebScreen: View {
                                 }
                                 
                             }
-                        }
+                        }.disabled(showSettingsPopup)
                     }
                     Spacer()
                     

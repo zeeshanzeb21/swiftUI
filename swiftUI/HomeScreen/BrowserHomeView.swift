@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Firebase
+import FirebaseAnalytics
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
 
