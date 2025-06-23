@@ -35,11 +35,7 @@ struct HowToUseScreen: View {
                     HStack {
                         Spacer()
                         Button {
-                            if currentIndex == 0 {
                                 dismiss()
-                            } else {
-                                currentIndex -= 1
-                            }
                         } label: {
                             Image(isFocusedCross() ? "cross_focus" : "cross_unfocus")
                                 .resizable()

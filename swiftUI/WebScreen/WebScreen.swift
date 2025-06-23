@@ -15,8 +15,8 @@ struct WebScreen: View {
     @State private var focusedIndex: Int? = nil
     @FocusState private var focusedField: FocusField?
     @State private var start: Int = 0
-    @State private var limit: Int = 10
-    @State var searchType : String 
+    @State private var limit: Int = 12
+    @State var searchType : String
     @State private var selectedURL: String?
     @State private var isNavigated = false
     @State private var link: String = ""
@@ -105,16 +105,7 @@ struct WebScreen: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-//                if viewModel.showLoading == true{
-//                    ZStack {
-//                        Text("Please wait! we are fetching results")
-//                            .font(Font.custom("Saira-Bold", size: 35))
-//                            .foregroundColor(Color(hex: "#3C3B3B"))
-//                            .padding(.top, 6)
-//                            .padding(.leading, 10)
-//                    }
-//                }
-                
+            
                 if viewModel.showLoading {
                     LoadingView()
                 }
@@ -331,7 +322,7 @@ struct WebScreen: View {
                             ])
                             
                             start = 0
-                            limit = 10
+                            limit = 12
                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
@@ -359,7 +350,7 @@ struct WebScreen: View {
                             ])
                             searchType =  "isch"
                             start = 0
-                            limit = 10
+                            limit = 12
                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                         }) {
                             HStack(spacing: 8) {
@@ -505,8 +496,8 @@ struct WebScreen: View {
                                 HStack{
                                     if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
                                         Button(action: {
-                                            start = start - 10
-                                            limit = limit - 10
+                                            start = start - 12
+                                            limit = limit - 12
                                             viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
                                             print("start")
                                             print(start)
@@ -530,7 +521,7 @@ struct WebScreen: View {
                                     if (viewModel.showLoading == false && limit <= viewModel.totalPages) {
                                         Button(action: {
                                             start = limit
-                                            limit = limit + 10
+                                            limit = limit + 12
                                             viewModel.getData(query:  searchText, searchType: searchType, start: start, limit: limit)
                                             print(start)
                                             print(limit)
@@ -554,8 +545,11 @@ struct WebScreen: View {
                     }
                     Spacer()
                     
+                   
+                    
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+               
                 if showSettingsPopup {
                     SettingsPopupView(
                         onClose: {
@@ -570,7 +564,8 @@ struct WebScreen: View {
                     .zIndex(100)
                 }
                 
-            }.focusSection()
+            }.disabled(viewModel.showLoading)
+            .focusSection()
             .task(id: viewID) {
                 if(searchType == "general")
                 {

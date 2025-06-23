@@ -24,6 +24,9 @@ struct FeedbackScreen: View {
     func isFocusedResponse() -> Bool { focusedButton == .response }
     func isFocusedMoney() -> Bool { focusedButton == .money }
     func isFocusedSubmit() -> Bool { focusedButton == .submit }
+    
+    @State private var showToast = false
+
 
     
     func toggleSelection(for button: FocusableButton) {
@@ -75,6 +78,7 @@ struct FeedbackScreen: View {
                     Button(action: {
                         print("Tapped")
                         toggleSelection(for: .content)
+                        showValidationMessage = false
                     }) {
                         HStack(spacing: 8) {
                             Image(selectedButtons.contains(.content) ? "tick_focus" : "tick_unfocus")
@@ -94,6 +98,7 @@ struct FeedbackScreen: View {
                     Button(action: {
                         print("Tapped")
                         toggleSelection(for: .appFreeze)
+                        showValidationMessage = false
 
                     }) {
                         HStack(spacing: 8) {
@@ -114,6 +119,7 @@ struct FeedbackScreen: View {
                     Button(action: {
                         print("Tapped")
                         toggleSelection(for: .naigate)
+                        showValidationMessage = false
                     }) {
                         HStack(spacing: 8) {
                             Image(selectedButtons.contains(.naigate) ? "tick_focus" : "tick_unfocus")
@@ -133,6 +139,7 @@ struct FeedbackScreen: View {
                     Button(action: {
                         print("Tapped")
                         toggleSelection(for: .response)
+                        showValidationMessage = false
                     }) {
                         HStack(spacing: 8) {
                             Image(selectedButtons.contains(.response) ? "tick_focus" : "tick_unfocus")
@@ -152,6 +159,8 @@ struct FeedbackScreen: View {
                     Button(action: {
                         print("Tapped")
                         toggleSelection(for: .money)
+                        showValidationMessage = false
+
                     }) {
                         HStack(spacing: 8) {
                             Image(selectedButtons.contains(.money) ? "tick_focus" : "tick_unfocus")
@@ -200,8 +209,12 @@ struct FeedbackScreen: View {
                                       ])
 
                                       print("Feedback submitted: \(feedbackSummary)")
-
-                                      dismiss()
+                               
+                                       showToast = true
+                                              DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                  showToast = false
+                                                  dismiss()
+                                              }
                                                                   
                            }
                        
@@ -215,23 +228,29 @@ struct FeedbackScreen: View {
                     
                 }.frame(maxWidth: .infinity, alignment: .leading) // Push contents to left
                     .padding(.leading, 16)
-                
                 Spacer()
-                
-                if showValidationMessage {
-                    Text("*Please select at least 1 option to submit")
-                        .font(.system(size: 40, weight: .regular))
-                        .italic()
-                        .foregroundColor(Color(hex: "#FF0000"))
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.bottom, 20)
-                        .transition(.opacity)
+                ZStack {
+                    if showValidationMessage {
+                        Text("*Please select at least 1 option to submit")
+                            .font(.system(size: 40, weight: .regular))
+                            .italic()
+                            .foregroundColor(Color(hex: "#FF0000"))
+                            .transition(.opacity)
+                    } else {
+                        // Empty placeholder to keep the height constant
+                        Text(" ")
+                            .font(.system(size: 40, weight: .regular))
+                            .hidden()
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 20)
+                .animation(.easeInOut(duration: 0.3), value: showValidationMessage)
                 
                 
                     
                 
-            }
+            }.toast(isPresented: $showToast, message: "Your feedback has been submitted successfully")
             .focusSection()
             .onAppear {
                 focusedButton = .content

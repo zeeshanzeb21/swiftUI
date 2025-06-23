@@ -86,6 +86,7 @@ struct BrowserHomeView: View {
                             HStack(spacing: 16) {
                                 Button(action: {
                                     print("Tapped")
+                                    
                                 }) {
                                     HStack(spacing: 8) {
                                         Image("premium")
@@ -355,10 +356,10 @@ struct BrowserHomeView: View {
                                 showError = true
                             }
                         }) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 3) {
                                 Image("ebay")
                                     .resizable()
-                                    .frame(width: 51, height: 51)
+                                    .frame(width: 60, height: 65)
                                     .padding(8)
                                 Text("eBay")
                                     .font(.system(size: 42,weight: .regular,design: .default))

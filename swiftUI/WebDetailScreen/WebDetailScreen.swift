@@ -48,12 +48,8 @@ struct WebDetailScreen: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-//                if viewModel.showLoading {
-//                    Text("Please wait! we are fetching results")
-//                        .font(Font.custom("Saira-Bold", size: 35))
-//                        .foregroundColor(Color(hex: "#3C3B3B"))
-//                        .padding(.top, 6)
-//                }
+                
+                
                 
                 if viewModel.showLoading {
                     LoadingView()
@@ -77,19 +73,7 @@ struct WebDetailScreen: View {
                     .transition(.opacity.combined(with: .scale))
                     .zIndex(100)
                 }
-            }
-//            .onChange(of: focusedField) { oldValue, newFocus in
-//                switch newFocus {
-//                    
-//                case .item(let index):
-//                    print(index)
-//                    if index == 0 || index == viewModel.links.count - 1 {
-//                       
-//                    }
-//                default:
-//                    break
-//                }
-//            }
+            }.disabled(viewModel.showLoading || imageLoader.isLoading)
             .onChange(of: showLinkList) { oldValue, newValue in
                 if newValue {
                     focusedField = .item(0)
