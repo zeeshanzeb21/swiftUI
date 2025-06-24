@@ -16,11 +16,6 @@ struct swiftUIApp: App {
 
 
     var body: some Scene {
-
-//        WindowGroup {
-//                BrowserHomeView(searchText: "")
-//            }
-        
         WindowGroup {
             ZStack {
                 if isActive {

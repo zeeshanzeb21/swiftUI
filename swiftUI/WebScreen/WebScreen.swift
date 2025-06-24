@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import SwiftUI
+@MainActor
 struct WebScreen: View {
     @Environment(\.dismiss) var dismiss
     @FocusState private var focusedButton: FocusableButton?
@@ -87,7 +88,7 @@ struct WebScreen: View {
         return false
     }
     
-    @ObservedObject var viewModel = WebViewModel()
+    @StateObject var viewModel = WebViewModel()
     private var articleButtons: [(Int, DataModel)] {
         Array(viewModel.searchData.enumerated())
     }
@@ -96,8 +97,8 @@ struct WebScreen: View {
     
     @Binding var navigationPath: [Route]
 
-    let viewID: UUID
-    
+    @State private var viewID = UUID()
+
     
     @StateObject private var networkMonitor = NetworkMonitor()
 
@@ -117,22 +118,22 @@ struct WebScreen: View {
                 }
                 
                 
-//                if (viewModel.showLoading == false && viewModel.searchData.isEmpty)
-//                {
-//                    ZStack {
-//                        Color.clear.ignoresSafeArea()
-//                        
-//                        VStack {
-//                            Spacer()
-//                            Image("no_result_found")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 736, height: 409)
-//                            Spacer()
-//                        }
-//                    }
-//                    
-//                }
+                if (viewModel.showLoading == false && viewModel.searchData.isEmpty)
+                {
+                    ZStack {
+                        Color.clear.ignoresSafeArea()
+                        
+                        VStack {
+                            Spacer()
+                            Image("no_result_found")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 736, height: 409)
+                            Spacer()
+                        }
+                    }
+                    
+                }
                 
                 if(networkMonitor.isConnected == false)
                 {
@@ -169,7 +170,6 @@ struct WebScreen: View {
                                     // Next Page Button
                                     Button(action: {
                                         if networkMonitor.isConnected {
-                                            
                                             if(searchType == "general")
                                             {
                                                 focusedButton = .web
@@ -717,7 +717,7 @@ struct WebScreen: View {
             }.disabled(viewModel.showLoading)
             .focusSection()
             .task(id: viewID) {
-                
+
                 
                 if networkMonitor.isConnected {
                     
@@ -737,11 +737,11 @@ struct WebScreen: View {
                
             }
         
-            .alert("Error", isPresented: $viewModel.showAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(viewModel.chatListLoadingError)
-            }
+//            .alert("Error", isPresented: $viewModel.showAlert) {
+//                Button("OK", role: .cancel) {}
+//            } message: {
+//                Text(viewModel.chatListLoadingError)
+//            }
             
         
     }

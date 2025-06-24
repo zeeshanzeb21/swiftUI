@@ -21,6 +21,7 @@ class WebViewModel: ObservableObject {
         
         dataManager.fetchData(query: query, searchType: searchType, start: start, limit: limit)
             .sink { [weak self] dataResponse in
+                print("Received response in sink")
                 guard let self = self else { return }
                 Analytics.logEvent("ud_call_sent", parameters: [
                     "query": "user data request sent"

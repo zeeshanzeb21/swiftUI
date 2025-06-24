@@ -15,6 +15,8 @@ struct BrowserHomeView: View {
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
     @State private var showError: Bool = false
+    
+    
 
     enum FocusableButton: Hashable {
         case premium, settings, images , youtube , twich, wikipedia, pin, ebay, search, mic, clickSearch
@@ -62,6 +64,9 @@ struct BrowserHomeView: View {
     @State private var path: [Route] = []
 
     @StateObject private var networkMonitor = NetworkMonitor()
+    
+    @State private var viewID = UUID()
+
 
     
     var body: some View {
@@ -153,6 +158,7 @@ struct BrowserHomeView: View {
                                     .foregroundColor(Color(hex: "#6A6767"))
                                     .font(.system(size: 30, weight: .regular))
                                     .padding(.leading, 70)
+                                    .lineLimit(1)
                                    
                             }
                             
@@ -162,6 +168,8 @@ struct BrowserHomeView: View {
                                     .foregroundColor(Color(hex: "#6A6767"))
                                     .font(.system(size: 30, weight: .regular))
                                     .padding(.leading, 70)
+                                    .lineLimit(1)
+
                             }
                             
                             TextField("Search Here...", text: $searchText)
@@ -436,7 +444,7 @@ struct BrowserHomeView: View {
             .navigationDestination(for: Route.self) { route in
                    switch route {
                    case .web(let searchText, let searchType,let navigateRight):
-                       WebScreen(searchText: searchText, searchType: searchType, navigeteRight: navigateRight, navigationPath: $path, viewID: UUID())
+                       WebScreen(searchText: searchText, searchType: searchType, navigeteRight: navigateRight, navigationPath: $path)
                    case .webDetail(let searchText, let hrefLink):
                        WebDetailScreen(searchText: searchText, hrefLink: hrefLink,viewID: UUID(), navigationPath: $path)
                    case .howToUse:

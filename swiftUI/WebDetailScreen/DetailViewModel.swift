@@ -19,6 +19,8 @@ class DetailViewModel: ObservableObject {
     @Published var showLoadingSS: Bool = false
     private var hasLoaded = false
     @Published var chatListLoadingError: String = ""
+    @Published  var showLinkList = false
+
 
 
     private var cancellableSet: Set<AnyCancellable> = []
