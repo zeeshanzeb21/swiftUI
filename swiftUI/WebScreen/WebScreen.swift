@@ -107,7 +107,7 @@ struct WebScreen: View {
                 
             
                 if viewModel.showLoading {
-                    LoadingView()
+                    LoadingView(screenShots: false)
                 }
 
                 
@@ -128,112 +128,159 @@ struct WebScreen: View {
                 
                 VStack(alignment: .leading) {
                     HStack(spacing: 0) {
-                        Button(action: {
-                            print("Settings tapped")
-                            dismiss()
-                            
-                        }) {
-                            Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
-                                .resizable()
-                                .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
-                                .padding(8)
-                        }
-                        .focused($focusedButton, equals: .left)
-                        .buttonStyle(PremiumButton(
-                            isFocused: isFocusedLeft(),
-                            width: isFocusedLeft() ? 60 : 45,
-                            height: isFocusedLeft() ? 60 : 45,
-                            cornerRadius: isFocusedLeft() ? 30 : 23
-                        ))
+//                        Button(action: {
+//                            print("Settings tapped")
+//                            dismiss()
+//                            
+//                        }) {
+//                            Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
+//                                .resizable()
+//                                .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
+//                                .padding(8)
+//                        }
+//                        .focused($focusedButton, equals: .left)
+//                        .buttonStyle(PremiumButton(
+//                            isFocused: isFocusedLeft(),
+//                            width: isFocusedLeft() ? 60 : 45,
+//                            height: isFocusedLeft() ? 60 : 45,
+//                            cornerRadius: isFocusedLeft() ? 30 : 23
+//                        ))
+//                        
+//                        Button(action: {
+//                            print("Settings tapped")
+//                            let link = UserDefaults.standard.string(forKey: "links")
+//                            let search = UserDefaults.standard.string(forKey: "search")
+//                            if(link != nil)
+//                            {
+//                                navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+//                            }
+//
+//                            
+//    
+//                        }) {
+//                            Image(isFocusedRight() ? "right_focus" : "right_unfocus")
+//                                .resizable()
+//                                .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
+//                                .padding(8)
+//                        }
+//                        .focused($focusedButton, equals: .right)
+//                        .buttonStyle(PremiumButton(
+//                            isFocused: isFocusedRight(),
+//                            width: isFocusedRight() ? 60 : 45,
+//                            height: isFocusedRight() ? 60 : 45,
+//                            cornerRadius: isFocusedRight() ? 30 : 23
+//                        ))
+//                        .padding(.leading, 13)
                         
-                        Button(action: {
-                            print("Settings tapped")
-                            let link = UserDefaults.standard.string(forKey: "links")
-                            let search = UserDefaults.standard.string(forKey: "search")
-                            print("ejdhcvgdv\(String(describing: link))")
-                            if(link != nil)
-                            {
-                                navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+                        HStack(spacing: 0) {
+                            
+                            // LEFT BUTTON IN FIXED CONTAINER
+                            ZStack {
+                                Color.clear
+                                    .frame(width: 60, height: 60) // Fixed container
+                                
+                                Button(action: {
+                                    dismiss()
+                                }) {
+                                    Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
+                                        .resizable()
+                                        .frame(width: isFocusedLeft() ? 17 : 12,
+                                               height: isFocusedLeft() ? 29 : 19)
+                                }
+                                .focused($focusedButton, equals: .left)
+                                .buttonStyle(PremiumButton(
+                                    isFocused: isFocusedLeft(),
+                                    width: isFocusedLeft() ? 60 : 45,
+                                    height: isFocusedLeft() ? 60 : 45,
+                                    cornerRadius: isFocusedLeft() ? 30 : 23
+                                ))
+                            }
+                            
+                            ZStack {
+                                Color.clear
+                                    .frame(width: 60, height: 60)
+                                
+                                Button(action: {
+                                    let link = UserDefaults.standard.string(forKey: "links")
+                                    let search = UserDefaults.standard.string(forKey: "search")
+                                    if(link != nil)
+                                    {
+                                        navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+                                    }
+                                }) {
+                                    Image(isFocusedRight() ? "right_focus" : "right_unfocus")
+                                        .resizable()
+                                        .frame(width: isFocusedRight() ? 17 : 12,
+                                               height: isFocusedRight() ? 29 : 19)
+                                }
+                                .focused($focusedButton, equals: .right)
+                                .buttonStyle(PremiumButton(
+                                    isFocused: isFocusedRight(),
+                                    width: isFocusedRight() ? 60 : 45,
+                                    height: isFocusedRight() ? 60 : 45,
+                                    cornerRadius: isFocusedRight() ? 30 : 23
+                                ))
                             }
 
-                            
-                            
-                        }) {
-                            Image(isFocusedRight() ? "right_focus" : "right_unfocus")
-                                .resizable()
-                                .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
-                                .padding(8)
-                        }
-                        .focused($focusedButton, equals: .right)
-                        .buttonStyle(PremiumButton(
-                            isFocused: isFocusedRight(),
-                            width: isFocusedRight() ? 60 : 45,
-                            height: isFocusedRight() ? 60 : 45,
-                            cornerRadius: isFocusedRight() ? 30 : 23
-                        ))
-                        .padding(.leading, 13)
-                        HStack(alignment: .top) {
-                            // Search bar
-                            //                            ZStack {
-                            //                                RoundedRectangle(cornerRadius: 40)
-                            //                                    .fill(Color.white)
-                            //                                    .frame(width: 1050, height: 80)
-                            //                                    .overlay(
-                            //                                        RoundedRectangle(cornerRadius: 40)
-                            //                                            .stroke(
-                            //                                                isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-                            //                                                lineWidth: 4
-                            //                                            )
-                            //                                    )
-                            //
-                            //                                HStack(spacing: 0) {
-                            //                                    if focusedButton != .search {
-                            //                                        Text(searchText)
-                            //                                            .foregroundColor(Color(hex: "#6A6767"))
-                            //                                            .font(.system(size: 30, weight: .regular))
-                            //                                            .padding(.leading, 10)
-                            //                                    }
-                            //
-                            //                                    TextField("Search Here...", text: $searchText)
-                            //                                        .font(.system(size: 30, weight: .regular))
-                            //                                        .foregroundColor(Color(hex: "#6A6767"))
-                            //                                        .padding(.leading, 10)
-                            //                                        .background(Color.clear)
-                            //                                        .textFieldStyle(.plain)
-                            //                                        .focused($focusedButton, equals: .search)
-                            //                                        .onChange(of: focusedButton) { oldValue, newValue in
-                            //                                            placeholderText = newValue == .search ? "" : "Search Here..."
-                            //                                        }
-                            //                                }
-                            //                                .frame(width: 1000, height: 80)
-                            //                            }
-                            
+                            // SEARCH BAR (no layout shift now)
                             Button(action: {
                                 focusedButton = .search
                             }) {
                                 ZStack {
-                                    
-                                    Image(isFocusedSearch() ? "search_focus": "search_simple")
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 950, height: 80)
-                                            .clipped()
-                                    
-                                    HStack
-                                    {
-                                        
+                                    Image(isFocusedSearch() ? "search_focus" : "search_simple")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 950, height: 80)
+                                        .clipped()
+
+                                    HStack {
                                         Text(searchText.isEmpty ? "Search Here..." : searchText)
                                             .foregroundColor(Color(hex: "#6A6767"))
                                             .font(.system(size: 30, weight: .regular))
                                             .frame(width: 800, alignment: .leading)
                                             .padding(.leading, 40)
                                     }
-                                    
-                                    
-                                }
+                                    .frame(width: 950, height: 80)
+                                }.padding(.leading, 40)
                             }
-                            .buttonStyle(WebDetailStyle()) // Remove default button visuals
+                            .buttonStyle(WebDetailStyle())
                             .focused($focusedButton, equals: .search)
+                            
+                        }
+
+                        
+                        HStack(alignment: .top) {
+                           
+                                
+//                                Button(action: {
+//                                    focusedButton = .search
+//                                }) {
+//                                    ZStack {
+//                                        
+//                                        Image(isFocusedSearch() ? "search_focus": "search_simple")
+//                                            .resizable()
+//                                            .scaledToFill()
+//                                            .frame(width: 950, height: 80)
+//                                            .clipped()
+//                                        
+//                                        HStack
+//                                        {
+//                                            
+//                                            Text(searchText.isEmpty ? "Search Here..." : searchText)
+//                                                .foregroundColor(Color(hex: "#6A6767"))
+//                                                .font(.system(size: 30, weight: .regular))
+//                                                .frame(width: 800, alignment: .leading)
+//                                                .padding(.leading, 40)
+//                                        }
+//                                        
+//                                        
+//                                    }
+//                                }
+//                                .buttonStyle(WebDetailStyle()) // Remove default button visuals
+//                                .focused($focusedButton, equals: .search)
+                               
+                                
+                            
                             
                             
                             HStack{

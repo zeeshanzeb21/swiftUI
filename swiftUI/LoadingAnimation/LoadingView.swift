@@ -4,6 +4,7 @@ import Lottie
 struct LoadingView: View {
     @State private var currentMessageIndex = 0
     @State private var showMessage = true
+    @State var screenShots = false
     
     let allMessages = [
         "Hang tight! We're fetching your results...",
@@ -24,21 +25,30 @@ struct LoadingView: View {
             
             VStack {
                 Spacer()
-                
-                // Centered Lottie animation
-                LottieView(animationName: "loading.json", loopMode: .loop)
+                    LottieView(animationName: "loading.json", loopMode: .loop)
                     .frame(width: 200, height: 200)
                 
                 Spacer()
                 
-                // Message text
-                if showMessage {
-                    Text(allMessages[currentMessageIndex])
-                        .font(Font.custom("Saira-Bold", size: 20))
-                        .foregroundColor(Color(hex: "#6A6767"))
-                        .padding(.bottom, 10)
-                        .transition(.opacity)
-                        .id(currentMessageIndex) // To trigger transition
+                ZStack {
+                    if  showMessage {
+                        Text(allMessages[currentMessageIndex])
+                            .font(.system( size: 40,weight: .bold, design: .default))
+                            .italic()
+                            .foregroundColor(Color(hex: "#6A6767"))
+                            .padding(.bottom, 10)
+                            .transition(.opacity)
+                            .id(currentMessageIndex)
+                    } else {
+                        
+                        Text(" ")
+                            .font(.system(size: 40, weight: .regular))
+                            .hidden()
+                    }
+                }
+                if (screenShots == true)
+                {
+                    Spacer().frame(height: 60)
                 }
             }
             .animation(.easeInOut(duration: 0.5), value: currentMessageIndex)

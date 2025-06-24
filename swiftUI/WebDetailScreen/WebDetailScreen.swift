@@ -51,8 +51,8 @@ struct WebDetailScreen: View {
                 
                 
                 
-                if viewModel.showLoading {
-                    LoadingView()
+                if (viewModel.showLoading || imageLoader.isLoading) {
+                    LoadingView(screenShots: false)
                 }
                 
                 VStack(alignment: .leading) {
@@ -129,124 +129,174 @@ struct WebDetailScreen: View {
 
     private var topBar: some View {
         HStack(spacing: 0) {
-            Button(action: { print("Left tapped")
-                if !navigationPath.isEmpty {
-                    UserDefaults.standard.set(true, forKey: "BackBtnClicked")
-                      var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
-                      currentIndex -= 1
-                      UserDefaults.standard.setCurrentLinkIndex(currentIndex)
-                    let savedLinks = UserDefaults.standard.getSavedLinks()
-                    print("ind \(savedLinks.count)")
-                    print("currentIndex \(currentIndex)")
-                        navigationPath.removeLast()
-                    } else {
-                    
-                        dismiss()
-                        
-                    }
-            }) {
-                Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
-                    .resizable()
-                    .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
-                    .padding(8)
-            }
-            .focused($focusedButton, equals: .left)
-            .buttonStyle(PremiumButton(
-                isFocused: isFocusedLeft(),
-                width: isFocusedLeft() ? 60 : 45,
-                height: isFocusedLeft() ? 60 : 45,
-                cornerRadius: isFocusedLeft() ? 30 : 23
-            ))
-
-            Button(action: { print("Right tapped")
-                let savedLinks = UserDefaults.standard.getSavedLinks()
-                var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
-                let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
-                print("currentIndex \(currentIndex)")
-                print("currentIndex \(savedLinks)")
-
-                if currentIndex < savedLinks.count {
-                    let nextLink = savedLinks[currentIndex]
-                    navigationPath.append(.webDetail(searchText: searchText, hrefLink: nextLink))
-                } else {
-                    print("Already at the last link. No forward navigation.")
-                }
-                if(backClicked == true && currentIndex < savedLinks.count)
-                {
-                    currentIndex += 1
-                    UserDefaults.standard.setCurrentLinkIndex(currentIndex)
-                }
-
-                
-                
-            }) {
-                Image(isFocusedRight() ? "right_focus" : "right_unfocus")
-                    .resizable()
-                    .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
-                    .padding(8)
-            }
-            .focused($focusedButton, equals: .right)
-            .buttonStyle(PremiumButton(
-                isFocused: isFocusedRight(),
-                width: isFocusedRight() ? 60 : 45,
-                height: isFocusedRight() ? 60 : 45,
-                cornerRadius: isFocusedRight() ? 30 : 23
-            ))
-            .padding(.leading, 13)
+//            Button(action: { print("Left tapped")
+//                if !navigationPath.isEmpty {
+//                    UserDefaults.standard.set(true, forKey: "BackBtnClicked")
+//                      var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+//                      currentIndex -= 1
+//                      UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+//                    let savedLinks = UserDefaults.standard.getSavedLinks()
+//                    print("ind \(savedLinks.count)")
+//                    print("currentIndex \(currentIndex)")
+//                        navigationPath.removeLast()
+//                    } else {
+//                    
+//                        dismiss()
+//                        
+//                    }
+//            }) {
+//                Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
+//                    .resizable()
+//                    .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
+//                    .padding(8)
+//            }
+//            .focused($focusedButton, equals: .left)
+//            .buttonStyle(PremiumButton(
+//                isFocused: isFocusedLeft(),
+//                width: isFocusedLeft() ? 60 : 45,
+//                height: isFocusedLeft() ? 60 : 45,
+//                cornerRadius: isFocusedLeft() ? 30 : 23
+//            ))
+//
+//            Button(action: { print("Right tapped")
+//                let savedLinks = UserDefaults.standard.getSavedLinks()
+//                var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+//                let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
+//                print("currentIndex \(currentIndex)")
+//                print("currentIndex \(savedLinks)")
+//
+//                if currentIndex < savedLinks.count {
+//                    let nextLink = savedLinks[currentIndex]
+//                    navigationPath.append(.webDetail(searchText: searchText, hrefLink: nextLink))
+//                } else {
+//                    print("Already at the last link. No forward navigation.")
+//                }
+//                if(backClicked == true && currentIndex < savedLinks.count)
+//                {
+//                    currentIndex += 1
+//                    UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+//                }
+//
+//                
+//                
+//            }) {
+//                Image(isFocusedRight() ? "right_focus" : "right_unfocus")
+//                    .resizable()
+//                    .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
+//                    .padding(8)
+//            }
+//            .focused($focusedButton, equals: .right)
+//            .buttonStyle(PremiumButton(
+//                isFocused: isFocusedRight(),
+//                width: isFocusedRight() ? 60 : 45,
+//                height: isFocusedRight() ? 60 : 45,
+//                cornerRadius: isFocusedRight() ? 30 : 23
+//            ))
+//            .padding(.leading, 13)
 
             // Search Field
-            HStack(alignment: .top) {
-                ZStack {
-//                    RoundedRectangle(cornerRadius: 40)
-//                        .fill(Color.white)
-//                        .frame(width: 1050, height: 80)
-//                        .overlay(
-//                            RoundedRectangle(cornerRadius: 40)
-//                                .stroke(
-//                                    isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4"),
-//                                    lineWidth: 4
-//                                )
-//                        )
-//
-//                    HStack(spacing: 0) {
-//                        TextField(searchedTxt, text: .constant(searchedTxt))
-//                            .font(.system(size: 30, weight: .regular))
-//                            .foregroundColor(Color(hex: "#6A6767"))
-//                            .padding(.leading, 10)
-//                            .padding(.top, 10)
-//                            .background(Color.clear)
-//                            .textFieldStyle(.plain)
-//                            .focused($focusedButton, equals: .search)
-//                    }
-//                    .frame(width: 1000, height: 80)
-                    Button(action: {
-                        focusedButton = .search
-                    }) {
-                        ZStack {
-                            
-                            Image(isFocusedSearch() ? "search_focus": "search_simple")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 950, height: 80)
-                                    .clipped()
-                            
-                            HStack
-                            {
-                                
-                                Text(searchText.isEmpty ? "Search Here..." : searchText)
-                                    .foregroundColor(Color(hex: "#6A6767"))
-                                    .font(.system(size: 30, weight: .regular))
-                                    .frame(width: 800, alignment: .leading)
-                                    .padding(.leading, 40)
-                            }
-                            
-                            
-                        }
-                    }
-                    .buttonStyle(WebDetailStyle()) // Remove default button visuals
-                    .focused($focusedButton, equals: .search)
+            
+            
+            ZStack {
+                Color.clear
+                    .frame(width: 60, height: 60) // Fixed container
+                
+                Button(action: {
+                                    if !navigationPath.isEmpty {
+                                        UserDefaults.standard.set(true, forKey: "BackBtnClicked")
+                                          var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+                                          currentIndex -= 1
+                                          UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+                                        let savedLinks = UserDefaults.standard.getSavedLinks()
+                                        print("ind \(savedLinks.count)")
+                                        print("currentIndex \(currentIndex)")
+                                            navigationPath.removeLast()
+                                        } else {
+                    
+                                            dismiss()
+                    
+                                        }
+                }) {
+                    Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
+                        .resizable()
+                        .frame(width: isFocusedLeft() ? 17 : 12,
+                               height: isFocusedLeft() ? 29 : 19)
                 }
-                .padding(.leading, 70)
+                .focused($focusedButton, equals: .left)
+                .buttonStyle(PremiumButton(
+                    isFocused: isFocusedLeft(),
+                    width: isFocusedLeft() ? 60 : 45,
+                    height: isFocusedLeft() ? 60 : 45,
+                    cornerRadius: isFocusedLeft() ? 30 : 23
+                ))
+            }
+            
+            ZStack {
+                Color.clear
+                    .frame(width: 60, height: 60)
+                
+                Button(action: {
+                                    let savedLinks = UserDefaults.standard.getSavedLinks()
+                                    var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+                                    let backClicked = UserDefaults.standard.bool(forKey: "BackBtnClicked")
+                                    print("currentIndex \(currentIndex)")
+                                    print("currentIndex \(savedLinks)")
+                    
+                                    if currentIndex < savedLinks.count {
+                                        let nextLink = savedLinks[currentIndex]
+                                        navigationPath.append(.webDetail(searchText: searchText, hrefLink: nextLink))
+                                    } else {
+                                        print("Already at the last link. No forward navigation.")
+                                    }
+                                    if(backClicked == true && currentIndex < savedLinks.count)
+                                    {
+                                        currentIndex += 1
+                                        UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+                                    }
+                    
+                }) {
+                    Image(isFocusedRight() ? "right_focus" : "right_unfocus")
+                        .resizable()
+                        .frame(width: isFocusedRight() ? 17 : 12,
+                               height: isFocusedRight() ? 29 : 19)
+                }
+                .focused($focusedButton, equals: .right)
+                .buttonStyle(PremiumButton(
+                    isFocused: isFocusedRight(),
+                    width: isFocusedRight() ? 60 : 45,
+                    height: isFocusedRight() ? 60 : 45,
+                    cornerRadius: isFocusedRight() ? 30 : 23
+                ))
+            }
+
+            // SEARCH BAR (no layout shift now)
+            Button(action: {
+                focusedButton = .search
+            }) {
+                ZStack {
+                    Image(isFocusedSearch() ? "search_focus" : "search_simple")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 950, height: 80)
+                        .clipped()
+
+                    HStack {
+                        Text(searchText.isEmpty ? "Search Here..." : searchText)
+                            .foregroundColor(Color(hex: "#6A6767"))
+                            .font(.system(size: 30, weight: .regular))
+                            .frame(width: 800, alignment: .leading)
+                            .padding(.leading, 40)
+                    }
+                    .frame(width: 950, height: 80)
+                }.padding(.leading, 40)
+            }
+            .buttonStyle(WebDetailStyle())
+            .focused($focusedButton, equals: .search)
+            
+            
+            HStack(alignment: .top) {
+                
+           
 
                 Spacer()
 
@@ -290,7 +340,10 @@ struct WebDetailScreen: View {
             
             
             if imageLoader.isLoading {
-                LoadingView()
+               
+               
+                
+                
                 
                  } else {
                      ScrollView(.vertical, showsIndicators: false) {
