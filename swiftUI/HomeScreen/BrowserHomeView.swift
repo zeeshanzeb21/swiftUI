@@ -7,6 +7,7 @@
 import SwiftUI
 import Firebase
 import FirebaseAnalytics
+import Network
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
 
@@ -60,6 +61,7 @@ struct BrowserHomeView: View {
     
     @State private var path: [Route] = []
 
+    @StateObject private var networkMonitor = NetworkMonitor()
 
     
     var body: some View {
@@ -185,6 +187,8 @@ struct BrowserHomeView: View {
                         HStack(alignment: .center) {
                             
                             Button(action: {
+                             
+                                
                                 if(searchText.isEmpty == false)
                                 {
                                     

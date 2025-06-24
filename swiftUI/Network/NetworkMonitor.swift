@@ -1,3 +1,11 @@
+//
+//  NetworkMonitor.swift
+//  swiftUI
+//
+//  Created by Invicttus on 24/06/2025.
+//
+
+
 import Network
 import Foundation
 

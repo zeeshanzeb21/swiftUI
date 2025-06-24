@@ -15,7 +15,7 @@ struct WebDetailScreen: View {
         Array(viewModel.links.enumerated())
     }
     enum FocusableButton {
-        case left, right, search, premium, settings, images, link, videos, news, shopping, list, loadMore, loadless
+        case left, right, search, premium, settings, images, link, videos, news, shopping, list, loadMore, loadless, back, tryAgain
     }
 
     enum FocusField: Hashable {
@@ -31,6 +31,14 @@ struct WebDetailScreen: View {
     func isFocusedSetting() -> Bool { focusedButton == .settings }
     func isFocusedLink() -> Bool { focusedButton == .link }
     
+    func isFocusedBack() -> Bool {
+        focusedButton == .back
+    }
+    
+    func isFocusedTryAgain() -> Bool {
+        focusedButton == .tryAgain
+    }
+    
     @Binding var navigationPath: [Route]
     @Environment(\.dismiss) private var dismiss
 
@@ -39,9 +47,12 @@ struct WebDetailScreen: View {
     
     @State private var showSettingsPopup = false
 
+    @StateObject private var networkMonitor = NetworkMonitor()
+
 
 
     var body: some View {
+        
             ZStack {
                 Image("bgImage")
                     .resizable()
@@ -53,6 +64,84 @@ struct WebDetailScreen: View {
                 
                 if (viewModel.showLoading || imageLoader.isLoading) {
                     LoadingView(screenShots: false)
+                }
+                
+                if(networkMonitor.isConnected == false)
+                {
+                    
+                        ZStack {
+                            Color.clear.ignoresSafeArea()
+                            
+                            VStack {
+                                Spacer()
+                                Image("no_internet")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 736, height: 409)
+                                
+                                HStack(spacing: 40) {
+                                
+                                    Button(action: {
+                                        if !navigationPath.isEmpty {
+                                            UserDefaults.standard.set(true, forKey: "BackBtnClicked")
+                                              var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
+                                              currentIndex -= 1
+                                              UserDefaults.standard.setCurrentLinkIndex(currentIndex)
+                                            let savedLinks = UserDefaults.standard.getSavedLinks()
+                                            print("ind \(savedLinks.count)")
+                                            print("currentIndex \(currentIndex)")
+                                                navigationPath.removeLast()
+                                            } else {
+                        
+                                                dismiss()
+                        
+                                            }
+                                    }) {
+                                        Text("Back")
+                                            .font(.system(size: 31, weight: .bold, design: .default))
+                                            .foregroundColor(isFocusedBack() ? .white : Color(hex: "#D6D6D6"))
+                                            .padding(8)
+                                    }
+                                    .focused($focusedButton, equals: .back)
+                                    .buttonStyle(PremiumButton(
+                                        isFocused: isFocusedBack(),
+                                        width: 320,
+                                        height: 80,
+                                        cornerRadius: 40
+                                    ))
+                                    .padding(.bottom, 10)
+
+                                    // Next Page Button
+                                    Button(action: {
+                                        if networkMonitor.isConnected {
+                                            focusedButton = .search
+                                            viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                                        }
+                                    }) {
+                                        Text("Try Again")
+                                            .font(.system(size: 31, weight: .bold, design: .default))
+                                            .foregroundColor(isFocusedTryAgain() ? .white : Color(hex: "#D6D6D6"))
+                                            .padding(8)
+                                    }
+                                    .focused($focusedButton, equals: .tryAgain)
+                                    .buttonStyle(PremiumButton(
+                                        isFocused: isFocusedTryAgain(),
+                                        width: 320,
+                                        height: 80,
+                                        cornerRadius: 40
+                                    ))
+                                    .padding(.bottom, 10)
+                                    
+                                }.padding(.top, 60)
+                                    .frame(maxWidth: .infinity)
+                                    .focusSection()
+
+                                
+                                Spacer()
+                            }
+                        }
+                        
+                               
                 }
                 
                 VStack(alignment: .leading) {
@@ -113,10 +202,14 @@ struct WebDetailScreen: View {
             }
             
             .task(id: viewID) {
-                focusedButton = .search
-                viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
                 
-            }
+                if networkMonitor.isConnected {
+                    
+                        focusedButton = .search
+                        viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                    }
+                }
+            
             .alert("Error", isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -361,53 +454,54 @@ struct WebDetailScreen: View {
                     
                  }
             
-
-            VStack {
-                Spacer()
-                HStack {
+            if(networkMonitor.isConnected){
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        
+                        ZStack(alignment: .trailing) {
+                            if (showLinkList) {
+                                linkListView
+                                    .frame(width: 300)
+                                    .frame(maxHeight: .infinity)
+                                    .background(Color.white)
+                                    .ignoresSafeArea()
+                                    .cornerRadius(16)
+                                    .transition(.move(edge: .trailing))
+                                    .animation(.easeInOut, value: showLinkList)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
+                                        
+                                    )
+                            }
+                            
+                            Button(action: {
+                                withAnimation {
+                                    showLinkList.toggle()
+                                    if(showLinkList == true)
+                                    {
+                                        Analytics.logEvent("internal_link_tab_open", parameters: [
+                                            "query": "User opens an internal links tab in the webpage"
+                                        ])
+                                    }
+                                }
+                            }) {
+                                Image(isFocusedLink() ? "link_btn_focus" : "link_btn_unfocus")
+                                    .resizable()
+                                    .frame(width: 72, height: 136)
+                            }
+                            .buttonStyle(WebDetailStyle())
+                            .focused($focusedButton, equals: .link)
+                            .offset(x: showLinkList ? -330 + 36 : 0)
+                            .animation(.easeInOut, value: showLinkList)
+                            .disabled(showSettingsPopup)
+                        }
+                    }
                     Spacer()
                     
-                    ZStack(alignment: .trailing) {
-                        if showLinkList {
-                            linkListView
-                                .frame(width: 300)
-                                .frame(maxHeight: .infinity)
-                                .background(Color.white)
-                                .ignoresSafeArea()
-                                .cornerRadius(16)
-                                .transition(.move(edge: .trailing))
-                                .animation(.easeInOut, value: showLinkList)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color(hex: "#E3E3E4").opacity(0.7), lineWidth: 4)
-                                    
-                                )
-                        }
-                        
-                        Button(action: {
-                            withAnimation {
-                                showLinkList.toggle()
-                                if(showLinkList == true)
-                                {
-                                    Analytics.logEvent("internal_link_tab_open", parameters: [
-                                        "query": "User opens an internal links tab in the webpage"
-                                    ])
-                                }
-                            }
-                        }) {
-                            Image(isFocusedLink() ? "link_btn_focus" : "link_btn_unfocus")
-                                .resizable()
-                                .frame(width: 72, height: 136)
-                        }
-                        .buttonStyle(WebDetailStyle())
-                        .focused($focusedButton, equals: .link)
-                        .offset(x: showLinkList ? -330 + 36 : 0)
-                        .animation(.easeInOut, value: showLinkList)
-                        .disabled(showSettingsPopup)
-                    }
                 }
-                Spacer()
-                
             }
         }
         .ignoresSafeArea()
