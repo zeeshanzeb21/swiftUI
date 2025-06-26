@@ -47,7 +47,7 @@ class DetailViewModel: ObservableObject {
         ])
         self.showLoading = true
         
-        dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 1920, ss_height: 100)
+        dataManager.fetchScreenShots(urls: urls, ux_type: 1, ss_width: 1920, ss_height: 915)
             .sink { [weak self] dataResponse in
                 guard let self = self else { return }
                 

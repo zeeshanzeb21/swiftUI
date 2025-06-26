@@ -89,8 +89,9 @@ struct RemoteImageView: View {
                     if let uiImage = image {
                         Image(uiImage: uiImage)
                             .resizable()
-                            .scaledToFit()
                             .frame(maxWidth: .infinity)
+                            .frame(maxHeight: .infinity)
+                            .scaledToFill()
                     } else {
                         Color.gray
                             .frame(height: placeholderHeight)
@@ -125,15 +126,4 @@ struct RemoteImageView: View {
             }
         }
     }
-}
-
-#Preview {
-    struct PreviewWrapper: View {
-        @FocusState private var sampleFocusField: FocusableButtonForDetail?
-        @StateObject private var viewModel = DetailViewModel()
-        var body: some View {
-            RemoteImageView(image: UIImage(named: ""), placeholderHeight: 0, focusField: $sampleFocusField, viewModel: viewModel)
-        }
-    }
-    return PreviewWrapper()
 }

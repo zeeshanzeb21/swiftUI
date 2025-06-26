@@ -7,7 +7,7 @@ enum FocusableButtonForDetail {
 
 struct WebDetailScreen: View {
     @FocusState private var focusedButton: FocusableButtonForDetail?
-    @ObservedObject var viewModel = DetailViewModel()
+    //@ObservedObject var viewModel = DetailViewModel()
     @State private var focusedIndex: Int? = nil
     @FocusState private var focusedField: FocusField?
     @State var searchText: String
@@ -15,6 +15,9 @@ struct WebDetailScreen: View {
     @State var hrefLink: String
     let viewID: UUID
     @State private var visitedLinks: [String] = []
+    
+    @StateObject var viewModel = DetailViewModel()
+
     
     private var interalLinks: [(Int, Link)] {
         Array(viewModel.links.enumerated())
@@ -458,7 +461,7 @@ struct WebDetailScreen: View {
                         ForEach(viewModel.slices, id: \.self) { urlString in
                             RemoteImageView(
                                 image: imageLoader.images[urlString],
-                                placeholderHeight: 150, focusField: $focusedButton,
+                                placeholderHeight: 915, focusField: $focusedButton,
                                 viewModel: viewModel
                             )
                         }
