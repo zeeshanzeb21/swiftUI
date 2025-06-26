@@ -11,7 +11,7 @@ import Network
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
 
-    @State var searchText: String = ""
+    @State var searchText: String = "Search Here..."
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
     @State private var showError: Bool = false
@@ -131,19 +131,7 @@ struct BrowserHomeView: View {
                     .focusSection()
                     .padding(.top, 57)
                     ZStack {
-                        // Background
-//                        RoundedRectangle(cornerRadius: 40)
-//                            .fill(Color.white)
-//                            .frame(width: 950, height: 80)
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 40)
-//                                    .stroke(
-//                                        showError
-//                                            ? Color.red
-//                                            : (isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4")),
-//                                        lineWidth: 4
-//                                    )
-//                            )
+                        
                         Image(showError ? "search_error" : (isFocusedSearch() ? "search_focus": "search_simple"))
                                 .resizable()
                                 .scaledToFill()
@@ -177,6 +165,7 @@ struct BrowserHomeView: View {
                                 .font(.system(size: 30, weight: .regular))
                                 .padding(.leading, searchText.isEmpty ? 10 : 70)
                                 .padding(.trailing, 20)
+                                
                                 .background(Color.clear)
                                 .textFieldStyle(.plain)
                                 .focused($focusedButton, equals: .search)

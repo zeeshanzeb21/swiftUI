@@ -27,7 +27,7 @@ struct WebScreen: View {
         case item(Int)
     }
     enum FocusableButton: Hashable {
-        case left,right,search,premium, settings,images,web, videos, news, shopping, list, loadMore, loadless, back, tryAgain
+        case left,right,search,premium, settings,images,web, videos, news, shopping, list, loadMore, loadless, back, tryAgain, searchBtnClicked
     }
     
     func isFocusedLeft() -> Bool {
@@ -77,6 +77,10 @@ struct WebScreen: View {
         focusedButton == .back
     }
     
+    func isFocusedSearchBtnClicked() -> Bool {
+        focusedButton == .searchBtnClicked
+    }
+    
     func isFocusedTryAgain() -> Bool {
         focusedButton == .tryAgain
     }
@@ -103,6 +107,10 @@ struct WebScreen: View {
     @StateObject private var networkMonitor = NetworkMonitor()
 
     
+    @State private var showError: Bool = false
+
+    @State private var previousSearchText: String = ""
+
 
     
     var body: some View {
@@ -226,50 +234,7 @@ struct WebScreen: View {
                 
                 VStack(alignment: .leading) {
                     HStack(spacing: 0) {
-                        //                        Button(action: {
-                        //                            print("Settings tapped")
-                        //                            dismiss()
-                        //
-                        //                        }) {
-                        //                            Image(isFocusedLeft() ? "left_focus" : "left_unfocus")
-                        //                                .resizable()
-                        //                                .frame(width: isFocusedLeft() ? 17 : 12, height: isFocusedLeft() ? 29 : 19)
-                        //                                .padding(8)
-                        //                        }
-                        //                        .focused($focusedButton, equals: .left)
-                        //                        .buttonStyle(PremiumButton(
-                        //                            isFocused: isFocusedLeft(),
-                        //                            width: isFocusedLeft() ? 60 : 45,
-                        //                            height: isFocusedLeft() ? 60 : 45,
-                        //                            cornerRadius: isFocusedLeft() ? 30 : 23
-                        //                        ))
-                        //
-                        //                        Button(action: {
-                        //                            print("Settings tapped")
-                        //                            let link = UserDefaults.standard.string(forKey: "links")
-                        //                            let search = UserDefaults.standard.string(forKey: "search")
-                        //                            if(link != nil)
-                        //                            {
-                        //                                navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
-                        //                            }
-                        //
-                        //
-                        //
-                        //                        }) {
-                        //                            Image(isFocusedRight() ? "right_focus" : "right_unfocus")
-                        //                                .resizable()
-                        //                                .frame(width: isFocusedRight() ? 17 : 12, height: isFocusedRight() ? 29 : 19)
-                        //                                .padding(8)
-                        //                        }
-                        //                        .focused($focusedButton, equals: .right)
-                        //                        .buttonStyle(PremiumButton(
-                        //                            isFocused: isFocusedRight(),
-                        //                            width: isFocusedRight() ? 60 : 45,
-                        //                            height: isFocusedRight() ? 60 : 45,
-                        //                            cornerRadius: isFocusedRight() ? 30 : 23
-                        //                        ))
-                        //                        .padding(.leading, 13)
-                        
+                      
                         HStack(spacing: 0) {
                             
                             // LEFT BUTTON IN FIXED CONTAINER
@@ -320,27 +285,82 @@ struct WebScreen: View {
                                 ))
                             }
                             
-                            // SEARCH BAR (no layout shift now)
-                            Button(action: {
-                                focusedButton = .search
-                            }) {
                                 ZStack {
-                                    Image(isFocusedSearch() ? "search_focus" : "search_simple")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 950, height: 80)
-                                        .clipped()
                                     
-                                    HStack {
-                                        Text(searchText.isEmpty ? "Search Here..." : searchText)
+                                    Image(showError ? "search_error" : (isFocusedSearch() ? "search_focus": "search_simple"))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 950, height: 80)
+                                            .clipped()
+                                    
+                                    HStack(spacing: 0) {
+                                        
+                                        
+                                       
+                                        TextField("Search Here...", text: $searchText)
                                             .foregroundColor(Color(hex: "#6A6767"))
                                             .font(.system(size: 30, weight: .regular))
-                                            .frame(width: 800, alignment: .leading)
-                                            .padding(.leading, 40)
+                                            .padding(.trailing, 20)
+                                            .padding(.leading, 70)
+                                            .padding(.top, 6)
+                                            .background(Color.clear)
+                                            .textFieldStyle(.plain)
+                                            .focused($focusedButton, equals: .search)
+                                            .onSubmit {
+                                                
+                                                let trimmedText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                   
+                                                   if !trimmedText.isEmpty {
+                                                      
+                                                       previousSearchText = searchText
+                                                       
+                                                       if searchType == "general" {
+                                                           focusedButton = .web
+                                                           viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                       } else if searchType == "isch" {
+                                                           focusedButton = .images
+                                                           viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                       }
+
+                                                       viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                   } else {
+                                                       
+                                                       searchText = previousSearchText
+                                                   }
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                }
+                                            .onChange(of: focusedButton) { oldValue, newValue in
+                                                if newValue == .search {
+                                                    placeholderText = ""
+                                                    showError = false
+                                                } else if oldValue == .search {
+                                                    placeholderText = "Search Here..."
+
+                                                    let trimmedText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                    if trimmedText.isEmpty {
+                                                        // Restore the last known valid text
+                                                        searchText = previousSearchText
+                                                    } else {
+                                                        // Save current as valid if not empty
+                                                        previousSearchText = searchText
+                                                    }
+                                                }
+                                            }
+
                                     }
-                                    .frame(width: 950, height: 80)
-                                }.padding(.leading, 40)
-                            }
+                                    
+                                    
+                                    .frame(width: 900, height: 80)
+                               
+
+                                    
+                                    
+                                    
+                                }.padding(.leading, 20)
                             .buttonStyle(WebDetailStyle())
                             .focused($focusedButton, equals: .search)
                             
@@ -350,36 +370,21 @@ struct WebScreen: View {
                         HStack(alignment: .top) {
                             
                             
-                            //                                Button(action: {
-                            //                                    focusedButton = .search
-                            //                                }) {
-                            //                                    ZStack {
-                            //
-                            //                                        Image(isFocusedSearch() ? "search_focus": "search_simple")
-                            //                                            .resizable()
-                            //                                            .scaledToFill()
-                            //                                            .frame(width: 950, height: 80)
-                            //                                            .clipped()
-                            //
-                            //                                        HStack
-                            //                                        {
-                         //
-                            //                                            Text(searchText.isEmpty ? "Search Here..." : searchText)
-                            //                                                .foregroundColor(Color(hex: "#6A6767"))
-                            //                                                .font(.system(size: 30, weight: .regular))
-                            //                                                .frame(width: 800, alignment: .leading)
-                            //                                                .padding(.leading, 40)
-                            //                                        }
-                            //
-                            //
-                            //                                    }
-                            //                                }
-                            //                                .buttonStyle(WebDetailStyle()) // Remove default button visuals
-                            //                                .focused($focusedButton, equals: .search)
+            
                             
-                            
-                            
-                            
+//                            HStack(alignment: .top, spacing: 0) {
+//                                Button(action: {
+//                                    print("Tapped")
+//                                }) {
+//                                    HStack(spacing: 0) {
+//                                        Image(isFocusedSearchBtnClicked() ? "search_btn_focus" : "search_btn_unfocus")
+//                                            .resizable()
+//                                            .frame(width: 86, height: 86)
+//                                    }
+//                                }
+//                                .focused($focusedButton, equals: .searchBtnClicked)
+//                                .buttonStyle(WebDetailStyle())
+//                            }
                             
                             HStack{
                                 Spacer()
