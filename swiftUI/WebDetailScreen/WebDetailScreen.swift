@@ -55,7 +55,8 @@ struct WebDetailScreen: View {
     
     @StateObject private var networkMonitor = NetworkMonitor()
     
-    
+    @State private var showToast = false
+
     
     var body: some View {
         
@@ -186,7 +187,12 @@ struct WebDetailScreen: View {
                 .transition(.opacity.combined(with: .scale))
                 .zIndex(100)
             }
-        }.background(Color.white)
+        }.toast(isPresented: $showToast, message: "How to Use Internal Links:  On the website view page, press the left button on your remote to open the internal links menu and right button to close them")
+            .focusSection()
+            .onAppear {
+                focusedButton = .list
+            }
+        .background(Color.white)
             .disabled(viewModel.showLoading || imageLoader.isLoading)
             .onChange(of: viewModel.showLinkList) { oldValue, newValue in
                 if newValue {
@@ -228,6 +234,12 @@ struct WebDetailScreen: View {
             .task(id: viewID) {
                 
                 if networkMonitor.isConnected {
+                    
+                    showToast = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                        showToast = false
+                        
+                    }
                     
                     focusedButton = .search
                     viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
