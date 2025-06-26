@@ -188,7 +188,9 @@ struct WebDetailScreen: View {
             .onChange(of: viewModel.showLinkList) { oldValue, newValue in
                 if newValue {
                     focusedField = .item(0)
+                    
                 }
+                
             }
         
         //            .onMoveCommand { direction in
@@ -226,14 +228,10 @@ struct WebDetailScreen: View {
                     
                     focusedButton = .search
                     viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
+                    
                 }
             }
         
-        //            .alert("Error", isPresented: $viewModel.showAlert) {
-        //                Button("OK", role: .cancel) {}
-        //            } message: {
-        //                Text(viewModel.chatListLoadingError)
-        //            }
             .onReceive(viewModel.$slices) { newSlices in
                 imageLoader.loadImages(from: newSlices)
             }
@@ -508,7 +506,6 @@ struct WebDetailScreen: View {
                                     case .linkListLeftButton:
                                         focusedButton = .link
                                         viewModel.showLinkList = false
-                                       print(newFocus)
     
                                     default:
                                         break
@@ -549,7 +546,7 @@ struct WebDetailScreen: View {
     
     private var linkListView: some View {
         
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading,spacing: 0) {
             Text("Browse Internal Links")
                 .font(.system(size: 16, weight: .regular))
                 .foregroundColor(Color(hex: "#938B8B"))
@@ -557,11 +554,24 @@ struct WebDetailScreen: View {
                 .padding(.top, 16)
                 .padding(.bottom, 16)
                 .background(Color.white)
-            ScrollView{
-                ForEach(viewModel.links.indices, id: \.self) { index in
-                    listView(index: index, links: viewModel.links[index])
+     //       ScrollView{
+//                ForEach(viewModel.links.indices, id: \.self) { index in
+//                    listView(index: index, links: viewModel.links[index])
+//                }
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 28) {
+                    ForEach(viewModel.links.indices, id: \.self) { index in
+                        listView(index: index, links: viewModel.links[index])
+                            .padding(.top, index == 0 ? 16 : 0)
+                            .padding(.bottom, index == viewModel.links.count - 1 ? 16 : 0)
+                            .onAppear {
+                                viewModel.loadMoreIfNeeded(currentIndex: index)
+                            }
+                    }
                 }
             }
+                
+           // }
             Spacer()
         }
     }
@@ -597,10 +607,11 @@ struct WebDetailScreen: View {
             Text(links.text ?? "")
                 .font(.system(size: 25, weight: .medium))
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 6)
         }
         .buttonStyle(InnerLinkList(
             isFocused: focusedIndex == index,
-            height: 20,
+            height: 10,
             width: 290,
             selectedColor: Color(hex: "#005C79")
         ))
@@ -608,7 +619,9 @@ struct WebDetailScreen: View {
         .onChange(of: focusedField) { oldValue, newValue in
             if case .item(let idx) = newValue {
                 focusedIndex = idx
+              
             }
+            
         }
     }
     

@@ -20,6 +20,9 @@ class DetailViewModel: ObservableObject {
     private var hasLoaded = false
     @Published var chatListLoadingError: String = ""
     @Published  var showLinkList = false
+    @Published var allLinks: [Link] = []
+    private var currentLimit = 150
+    private let pageSize = 150
 
 
 
@@ -71,39 +74,71 @@ class DetailViewModel: ObservableObject {
             .store(in: &cancellableSet)
     }
     
-    func getInternalLinks(url: String) {
-        self.showLoadingSS = true
-        Analytics.logEvent("ud_call_sent", parameters: [
-            "query": "user data request sent"
-        ])
-        dataManager.fetchInternalLinks(urls: url)
-            .sink { [weak self] dataResponse in
-                guard let self = self else { return }
-                
-                self.showLoadingSS = false
-                
-                if let error = dataResponse.error {
-                    self.createAlert(with: error)
-                    Analytics.logEvent("ud_call_failed_\(error.localizedDescription)", parameters: [
-                        "query": "user data request call response failed with response"
-                    ])
-                    Analytics.logEvent("error_\(error.localizedDescription)", parameters: [
-                        "query": "error type when occurred"
-                    ])
-                } else {
-                    self.links = dataResponse.value?.links ?? []
-                    print("links\(self.links)")
-                    Analytics.logEvent("ud_call_success", parameters: [
-                        "query": "When user data request call received successfully"
-                    ])
-                    Analytics.logEvent("internal_link_open", parameters: [
-                        "query": "userr opened internal link in the website"
-                    ])
-                }
-            }
-            .store(in: &cancellableSet)
-    }
+//    func getInternalLinks(url: String) {
+//        self.showLoadingSS = true
+//        Analytics.logEvent("ud_call_sent", parameters: [
+//            "query": "user data request sent"
+//        ])
+//        dataManager.fetchInternalLinks(urls: url)
+//            .sink { [weak self] dataResponse in
+//                guard let self = self else { return }
+//                
+//                self.showLoadingSS = false
+//                
+//                if let error = dataResponse.error {
+//                    self.createAlert(with: error)
+//                    Analytics.logEvent("ud_call_failed_\(error.localizedDescription)", parameters: [
+//                        "query": "user data request call response failed with response"
+//                    ])
+//                    Analytics.logEvent("error_\(error.localizedDescription)", parameters: [
+//                        "query": "error type when occurred"
+//                    ])
+//                } else {
+//                    self.links = dataResponse.value?.links ?? []
+//                    print("links\(self.links.count)")
+//                    Analytics.logEvent("ud_call_success", parameters: [
+//                        "query": "When user data request call received successfully"
+//                    ])
+//                    Analytics.logEvent("internal_link_open", parameters: [
+//                        "query": "userr opened internal link in the website"
+//                    ])
+//                }
+//            }
+//            .store(in: &cancellableSet)
+//    }
 
+    func getInternalLinks(url: String) {
+           self.showLoadingSS = true
+
+           dataManager.fetchInternalLinks(urls: url)
+               .sink { [weak self] dataResponse in
+                   guard let self = self else { return }
+
+                   self.showLoadingSS = false
+
+                   if let error = dataResponse.error {
+                       self.createAlert(with: error)
+                   } else {
+                       self.allLinks = dataResponse.value?.links ?? []
+                       self.currentLimit = min(self.pageSize, self.allLinks.count)
+                       self.links = Array(self.allLinks.prefix(self.currentLimit))
+                       print("Loaded initial \(self.links.count) links")
+                   }
+               }
+               .store(in: &cancellableSet)
+       }
+
+       func loadMoreIfNeeded(currentIndex: Int) {
+           // Trigger only when the currentIndex reaches the last visible one
+           if currentIndex == links.count - 1 && links.count < allLinks.count {
+               let newLimit = min(currentLimit + pageSize, allLinks.count)
+               if newLimit > currentLimit {
+                   currentLimit = newLimit
+                   links = Array(allLinks.prefix(currentLimit))
+                   print("Loaded more: \(links.count) links")
+               }
+           }
+       }
     
     func createAlert( with error: NetworkError ) {
         chatListLoadingError = error.backendError == nil ? error.initialError.localizedDescription : error.backendError!.message

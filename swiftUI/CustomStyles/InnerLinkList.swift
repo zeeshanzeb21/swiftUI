@@ -22,10 +22,8 @@ struct InnerLinkList: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         ZStack {
-            // Full height grey background
             Color(hex: "#DDDDDD").ignoresSafeArea()
 
-            // Actual button content with internal padding
             VStack(spacing: 0) {
                 Spacer()
                 ZStack(alignment: .leading) {
@@ -42,7 +40,7 @@ struct InnerLinkList: ButtonStyle {
             }
         }
         .frame(width: width, height: height + 7)
-        .padding(.leading, 8)
+        .padding(.leading, 2)
     }
 }
 
