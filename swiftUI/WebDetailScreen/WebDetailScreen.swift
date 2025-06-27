@@ -237,18 +237,7 @@ struct WebDetailScreen: View {
                 
                 if networkMonitor.isConnected {
                     
-                    let hasShownToast = UserDefaults.standard.bool(forKey: "showToast")
-                    
-                    
-                    if !hasShownToast {
-                        showToast = true
-                        UserDefaults.standard.set(true, forKey: "showToast")
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            showToast = false
-                           
-                        }
-                    }
+                   
                     
                     focusedButton = .search
                     viewModel.loadDataIfNeeded(urls: hrefLink, ux_type: 1, ss_width: 0, ss_height: 0)
@@ -500,6 +489,9 @@ struct WebDetailScreen: View {
                         Spacer()
                         
                         ZStack(alignment: .trailing) {
+                            
+                            
+                            
                             if (viewModel.showLinkList) {
                                 HStack(spacing: 0) {
                                     linkListView
@@ -523,7 +515,13 @@ struct WebDetailScreen: View {
                                     .frame(maxHeight: .infinity)
                                     .frame(width: 1)
                                     .opacity(0)
+                                    
+                                    
+                                   
+
                                 }
+                                
+                                
                                
                                 .onChange(of: focusedButton) { newFocus in
                                     switch newFocus {
@@ -536,6 +534,37 @@ struct WebDetailScreen: View {
                                     }
                                 }
                                 
+                            }
+                            let hasShownToast = UserDefaults.standard.bool(forKey: "showToast")
+                            
+                            
+                            if !hasShownToast {
+                                
+                                
+                                VStack(spacing: 0) {
+                                    Image("arrow")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 90)
+                                        .frame(width: 80)
+                                        .padding(.trailing, 30)
+                                    
+                                    
+                                    Image("open_link")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 80)
+                                        .frame(width: 233)
+                                        .padding(.trailing, 30)
+                                        .padding(.top, 10)
+                                    
+                                }.onAppear
+                                {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                UserDefaults.standard.set(true, forKey: "showToast")
+                                            }
+                                }
+                                .padding(.top, 140)
                             }
                             
                             Button(action: {

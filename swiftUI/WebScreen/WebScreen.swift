@@ -856,7 +856,6 @@ struct WebScreen: View {
                     if imageString.starts(with: "http"),
                        let url = URL(string: imageString) {
                         
-                        // Load image from URL (tvOS-safe way)
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .success(let image):
