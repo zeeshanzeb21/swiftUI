@@ -56,6 +56,9 @@ struct WebDetailScreen: View {
     @StateObject private var networkMonitor = NetworkMonitor()
     
     @State private var showToast = false
+    
+    @State private var hasShownToast: Bool = false
+
 
     
     var body: some View {
@@ -230,15 +233,21 @@ struct WebDetailScreen: View {
                     
                 }
             }
-        
             .task(id: viewID) {
                 
                 if networkMonitor.isConnected {
                     
-                    showToast = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                        showToast = false
+                    let hasShownToast = UserDefaults.standard.bool(forKey: "showToast")
+                    
+                    
+                    if !hasShownToast {
+                        showToast = true
+                        UserDefaults.standard.set(true, forKey: "showToast")
                         
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showToast = false
+                           
+                        }
                     }
                     
                     focusedButton = .search

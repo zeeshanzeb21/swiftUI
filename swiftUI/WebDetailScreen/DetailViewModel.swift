@@ -26,6 +26,7 @@ class DetailViewModel: ObservableObject {
 
 
 
+
     private var cancellableSet: Set<AnyCancellable> = []
     var dataManager: ServiceProtocol
     
@@ -69,6 +70,7 @@ class DetailViewModel: ObservableObject {
                     Analytics.logEvent("ud_call_success", parameters: [
                         "query": "When user data request call received successfully"
                     ])
+                    
                 }
             }
             .store(in: &cancellableSet)

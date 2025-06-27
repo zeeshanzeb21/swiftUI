@@ -9,6 +9,7 @@ import SwiftUI
 import Alamofire
 import Firebase
 import Foundation
+import FirebaseAnalytics
 @main
 struct swiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -38,6 +39,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     Analytics.setAnalyticsCollectionEnabled(true)
 
       let isFirstLaunch = !UserDefaults.standard.bool(forKey: "isLaunchedBefore")
+      
+
           
           if isFirstLaunch {
               UserDefaults.standard.set(true, forKey: "isLaunchedBefore")
@@ -45,12 +48,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
               Analytics.logEvent("first_app_open", parameters: [
                   "message": "App launched for the first time"
               ])
+
           }
       else
       {
           Analytics.logEvent("app_open", parameters: [
               "message": "App opened by the user"
           ])
+          UserDefaults.standard.set(false, forKey: "showToast")
+
+
+          
       }
     
     return true
