@@ -375,7 +375,7 @@ struct WebDetailScreen: View {
                     
                     if currentIndex < savedLinks.count {
                         let nextLink = savedLinks[currentIndex]
-                        navigationPath.append(.webDetail(searchText: searchText, hrefLink: nextLink))
+                        navigationPath.append(.webDetail(searchText: nextLink, hrefLink: nextLink))
                     } else {
                         print("Already at the last link. No forward navigation.")
                     }
@@ -648,7 +648,7 @@ struct WebDetailScreen: View {
             var currentIndex = UserDefaults.standard.getCurrentLinkIndex()
             currentIndex += 1
             UserDefaults.standard.setCurrentLinkIndex(currentIndex)
-            navigationPath.append(.webDetail(searchText: searchText, hrefLink: links.href ?? ""))
+            navigationPath.append(.webDetail(searchText: links.href ?? "", hrefLink: links.href ?? ""))
             viewModel.showLinkList = false
             
             var savedLinks = UserDefaults.standard.getSavedLinks()
