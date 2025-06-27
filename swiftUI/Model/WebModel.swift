@@ -25,7 +25,7 @@ struct DataModel: Codable {
     let rank: Int?
     let globalRank: Int?
     let title, heading, description: String?
-    let sourceLogo, imageBase64: String?
+    let sourceLogo, imageBase64: String?,imageUrl: String?
     enum CodingKeys: String, CodingKey {
             case link
             case links
@@ -34,6 +34,7 @@ struct DataModel: Codable {
             case title
             case source
             case imageAlt = "image_alt"
+            case imageUrl = "image_url"
             case globalRank = "global_rank"
             case sourceLogo = "source_logo"
             case imageBase64 = "image_base64"

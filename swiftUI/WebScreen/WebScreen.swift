@@ -852,28 +852,44 @@ struct WebScreen: View {
             onTap()
         }) {
             VStack{
-                if let image = base64ToImage(base64String: article.image ?? "") {
-                    Image(uiImage: image)
-                        .resizable()
-                        .frame(height: 300)
-                        .clipped()
-                        .cornerRadius(16)
-                        .padding(.leading, 24)
-                        .padding(.trailing, 24)
-                        .padding(.bottom, 2)
-                        .padding(.top, 20)
-                } else {
-                    Image("bbc")
-                        .resizable()
-                        .frame(height: 300)
-                        .clipped()
-                        .cornerRadius(16)
-                        .padding(.leading, 24)
-                        .padding(.trailing, 24)
-                        .padding(.top, 24)
-                        .padding(.bottom, 2)
+                if let imageString = article.image {
+                    if imageString.starts(with: "http"),
+                       let url = URL(string: imageString) {
+                        
+                        // Load image from URL (tvOS-safe way)
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .frame(height: 300)
+                                    .clipped()
+                                    .cornerRadius(16)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 20)
+                            case .failure(_):
+                                EmptyView() // Or placeholder/fallback
+                            default:
+                                ProgressView()
+                                    .frame(height: 300)
+                            }
+                        }
 
+                    } else if let image = base64ToImage(base64String: imageString) {
+                        
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(height: 300)
+                            .clipped()
+                            .cornerRadius(16)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 20)
+
+                    } else {
+                        EmptyView() // Invalid image string
+                    }
                 }
+
                 HStack(alignment: .top, spacing: 0) {
                     if let image = base64ToImage(base64String: article.sourceLogo ?? "bbc") {
                         Image(uiImage: image)
