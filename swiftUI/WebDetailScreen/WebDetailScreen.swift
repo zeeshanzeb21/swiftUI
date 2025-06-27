@@ -71,30 +71,6 @@ struct WebDetailScreen: View {
             
             
             
-            
-            if (viewModel.showLoading || imageLoader.isLoading) {
-                LoadingView(screenShots: false)
-            }
-            
-            if (viewModel.showLoading == false && viewModel.slices.isEmpty)
-            {
-                ZStack {
-                    Color.clear.ignoresSafeArea()
-                    
-                    VStack {
-                        Spacer()
-                        Image("no_result_found")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 736, height: 409)
-                        Spacer()
-                    }
-                }
-                
-            }
-            
-            
-            
             if(networkMonitor.isConnected == false)
             {
                 ZStack {
@@ -172,9 +148,40 @@ struct WebDetailScreen: View {
                 
             }
             
+            
+            
+            
+           else if (viewModel.showLoading || imageLoader.isLoading) {
+                LoadingView(screenShots: false)
+            }
+            
+           else if (viewModel.showLoading == false && viewModel.slices.isEmpty)
+            {
+                ZStack {
+                    Color.clear.ignoresSafeArea()
+                    
+                    VStack {
+                        Spacer()
+                        Image("no_result_found")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 736, height: 409)
+                        Spacer()
+                    }
+                }
+                
+            }
+            
+            
+            
+           
+            
             VStack(alignment: .leading) {
-                topBar
-                contentArea
+                if(networkMonitor.isConnected)
+                {
+                    topBar
+                    contentArea
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             if showSettingsPopup {
@@ -460,6 +467,7 @@ struct WebDetailScreen: View {
     }
     
     private var contentArea: some View {
+        
         ZStack {
             
             

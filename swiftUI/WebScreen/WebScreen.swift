@@ -120,28 +120,6 @@ struct WebScreen: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-            
-                if viewModel.showLoading {
-                    LoadingView(screenShots: false)
-                }
-                
-                
-                if (viewModel.showLoading == false && viewModel.searchData.isEmpty)
-                {
-                    ZStack {
-                        Color.clear.ignoresSafeArea()
-                        
-                        VStack {
-                            Spacer()
-                            Image("no_result_found")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 736, height: 409)
-                            Spacer()
-                        }
-                    }
-                    
-                }
                 
                 if(networkMonitor.isConnected == false)
                 {
@@ -175,21 +153,25 @@ struct WebScreen: View {
                                     ))
                                     .padding(.bottom, 10)
 
-                                    // Next Page Button
                                     Button(action: {
-                                        if networkMonitor.isConnected {
-                                            if(searchType == "general")
-                                            {
-                                                focusedButton = .web
-                                                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                        
+                                            if networkMonitor.isConnected {
+                                                if(searchType == "general")
+                                                {
+                                                    focusedButton = .web
+                                                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                    
+                                                }
+                                                else if(searchType == "isch"){
+                                                    focusedButton = .images
+                                                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                }
                                                 
                                             }
-                                            else if(searchType == "isch"){
-                                                focusedButton = .images
-                                                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
-                                            }
                                             
-                                        }
+                                            
+                                        
+                                        
                                     }) {
                                         Text("Try Again")
                                             .font(.system(size: 31, weight: .bold, design: .default))
@@ -216,6 +198,33 @@ struct WebScreen: View {
                         
                                
                 }
+                
+                
+                
+            
+               else if viewModel.showLoading {
+                    LoadingView(screenShots: false)
+                }
+                
+                
+              else  if (viewModel.showLoading == false && viewModel.searchData.isEmpty)
+                {
+                    ZStack {
+                        Color.clear.ignoresSafeArea()
+                        
+                        VStack {
+                            Spacer()
+                            Image("no_result_found")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 736, height: 409)
+                            Spacer()
+                        }
+                    }
+                    
+                }
+                
+               
                 
                
                 
@@ -268,7 +277,7 @@ struct WebScreen: View {
                                     let search = UserDefaults.standard.string(forKey: "search")
                                     if(link != nil)
                                     {
-                                        navigationPath.append(.webDetail(searchText: search ?? "", hrefLink: link ?? ""))
+                                        navigationPath.append(.webDetail(searchText: link ?? "", hrefLink: link ?? ""))
                                     }
                                 }) {
                                     Image(isFocusedRight() ? "right_focus" : "right_unfocus")
@@ -459,246 +468,249 @@ struct WebScreen: View {
                     }.focusSection()
                         .padding(.leading, 0)
                         .padding(.top, 10)
-                    if(viewModel.searchData.isEmpty == false){
-                        HStack(spacing: 20) {
-                            Button(action: {
-                                searchType =  "general"
-                                Analytics.logEvent("search_web", parameters: [
-                                    "query": "Search is requested from web"
-                                ])
-                                Analytics.logEvent("web_tab_btn_pressed", parameters: [
-                                    "query": "Web Tab Button Pressed"
-                                ])
-                                Analytics.logEvent("web view", parameters: [
-                                    "query": "Web screen viewed"
-                                ])
-                                
-                                start = 0
-                                limit = 12
-                                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(isFocusedWeb() ? "web_focus": "web")
+                    if(networkMonitor.isConnected){
+                        if(viewModel.searchData.isEmpty == false ){
+                            HStack(spacing: 20) {
+                                Button(action: {
+                                    searchType =  "general"
+                                    Analytics.logEvent("search_web", parameters: [
+                                        "query": "Search is requested from web"
+                                    ])
+                                    Analytics.logEvent("web_tab_btn_pressed", parameters: [
+                                        "query": "Web Tab Button Pressed"
+                                    ])
+                                    Analytics.logEvent("web view", parameters: [
+                                        "query": "Web screen viewed"
+                                    ])
+                                    
+                                    start = 0
+                                    limit = 12
+                                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(isFocusedWeb() ? "web_focus": "web")
+                                            .resizable()
+                                            .frame(width: 26, height: 26)
+                                            .padding(4)
+                                        Text("Web")
+                                            .font(.system(size: 28,weight: .medium,design: .default))
+                                            .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79"))
+                                            .padding(4)
+                                    }
+                                }.disabled(showSettingsPopup)
+                                    .focused($focusedButton, equals: .web)
+                                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
+                                Button(action: {
+                                    Analytics.logEvent("search_image", parameters: [
+                                        "query": "Search is requested from image"
+                                    ])
+                                    Analytics.logEvent("image_tab_btn_pressed", parameters: [
+                                        "query": "Image Tab Button Pressed"
+                                    ])
+                                    Analytics.logEvent("image view", parameters: [
+                                        "query": "image screen viewed"
+                                    ])
+                                    searchType =  "isch"
+                                    start = 0
+                                    limit = 12
+                                    viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(isFocusedImages()  ? "images_focus": "images")
+                                            .resizable()
+                                            .frame(width: 30, height: 30)
+                                            .padding(4)
+                                        Text("Images")
+                                            .font(.system(size: 28,weight: .medium,design: .default))
+                                            .foregroundColor(isFocusedImages() ? .white : Color(hex: "#005C79")).padding(4)
+                                    }
+                                }.disabled(showSettingsPopup)
+                                    .focused($focusedButton, equals: .images)
+                                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
+                                Button(action: {
+                                    searchType = "videos"
+                                    Analytics.logEvent("search_videos", parameters: [
+                                        "query": "Search is requested from videos"
+                                    ])
+                                    Analytics.logEvent("video_tab_btn_pressed", parameters: [
+                                        "query": "Video Tab Button Pressed"
+                                    ])
+                                    Analytics.logEvent("video view", parameters: [
+                                        "query": "video screen viewed"
+                                    ])
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(isFocusedVideos() ? "video_focus"
+                                              :"video")
                                         .resizable()
-                                        .frame(width: 26, height: 26)
+                                        .frame(width: 33, height: 24)
                                         .padding(4)
-                                    Text("Web")
-                                        .font(.system(size: 28,weight: .medium,design: .default))
-                                        .foregroundColor(isFocusedWeb() ? .white : Color(hex: "#005C79"))
-                                        .padding(4)
-                                }
-                            }.disabled(showSettingsPopup)
-                                .focused($focusedButton, equals: .web)
-                                .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeb(),height: 60, width: 188,cornerRadius: 30))
-                            Button(action: {
-                                Analytics.logEvent("search_image", parameters: [
-                                    "query": "Search is requested from image"
-                                ])
-                                Analytics.logEvent("image_tab_btn_pressed", parameters: [
-                                    "query": "Image Tab Button Pressed"
-                                ])
-                                Analytics.logEvent("image view", parameters: [
-                                    "query": "image screen viewed"
-                                ])
-                                searchType =  "isch"
-                                start = 0
-                                limit = 12
-                                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(isFocusedImages()  ? "images_focus": "images")
-                                        .resizable()
-                                        .frame(width: 30, height: 30)
-                                        .padding(4)
-                                    Text("Images")
-                                        .font(.system(size: 28,weight: .medium,design: .default))
-                                        .foregroundColor(isFocusedImages() ? .white : Color(hex: "#005C79")).padding(4)
-                                }
-                            }.disabled(showSettingsPopup)
-                                .focused($focusedButton, equals: .images)
-                                .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedImages(),height: 60, width: 226,cornerRadius: 30))
-                            Button(action: {
-                                searchType = "videos"
-                                Analytics.logEvent("search_videos", parameters: [
-                                    "query": "Search is requested from videos"
-                                ])
-                                Analytics.logEvent("video_tab_btn_pressed", parameters: [
-                                    "query": "Video Tab Button Pressed"
-                                ])
-                                Analytics.logEvent("video view", parameters: [
-                                    "query": "video screen viewed"
-                                ])
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(isFocusedVideos() ? "video_focus"
-                                          :"video")
-                                    .resizable()
-                                    .frame(width: 33, height: 24)
-                                    .padding(4)
-                                    Text("Videos")
-                                        .font(.system(size: 28,weight: .medium,design: .default))
-                                        .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
-                                }
-                            }.disabled(showSettingsPopup)
-                                .focused($focusedButton, equals: .videos)
-                                .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
-                            Button(action: {
-                                searchType = "news"
-                                Analytics.logEvent("search_news", parameters: [
-                                    "query": "Search is requested from news"
-                                ])
-                                Analytics.logEvent("news_tab_btn_pressed", parameters: [
-                                    "query": "News Tab Button Pressed"
-                                ])
-                                Analytics.logEvent("news view", parameters: [
-                                    "query": "news screen viewed"
-                                ])
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(isFocusedNews() ? "news_focus" :"news")
-                                        .resizable()
-                                        .frame(width: 28, height: 24)
-                                        .padding(4)
-                                    Text("News")
-                                        .font(.system(size: 28,weight: .medium,design: .default))
-                                        .foregroundColor(isFocusedNews() ? .white : Color(hex: "#005C79")).padding(4)
-                                }
-                            }.disabled(showSettingsPopup)
-                                .focused($focusedButton, equals: .news)
-                                .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
-                            Button(action: {
-                                searchType = "shopping"
-                                Analytics.logEvent("search_shop", parameters: [
-                                    "query": "Search is requested from shop"
-                                ])
-                                Analytics.logEvent("shop_tab_btn_pressed", parameters: [
-                                    "query": "Shopping Tab Button Pressed"
-                                ])
-                                Analytics.logEvent("shopping view", parameters: [
-                                    "query": "shopping screen viewed"
-                                ])
-                                
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(isFocusedShopping() ? "shopping_focus" :"shopping")
-                                        .resizable()
-                                        .frame(width: 25, height: 25)
-                                        .padding(4)
-                                    Text("Shopping")
-                                        .font(.system(size: 28,weight: .medium,design: .default))
-                                        .foregroundColor(isFocusedShopping() ? .white : Color(hex: "#005C79")).padding(4)
-                                }
-                            }.disabled(showSettingsPopup)
-                                .focused($focusedButton, equals: .shopping)
-                                .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedShopping(),height: 60, width: 255,cornerRadius: 30))
-                        }.padding(.top, 4)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .focusSection()
+                                        Text("Videos")
+                                            .font(.system(size: 28,weight: .medium,design: .default))
+                                            .foregroundColor(isFocusedVideos() ? .white : Color(hex: "#005C79")).padding(4)
+                                    }
+                                }.disabled(showSettingsPopup)
+                                    .focused($focusedButton, equals: .videos)
+                                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedVideos(),height: 60, width: 200,cornerRadius: 30))
+                                Button(action: {
+                                    searchType = "news"
+                                    Analytics.logEvent("search_news", parameters: [
+                                        "query": "Search is requested from news"
+                                    ])
+                                    Analytics.logEvent("news_tab_btn_pressed", parameters: [
+                                        "query": "News Tab Button Pressed"
+                                    ])
+                                    Analytics.logEvent("news view", parameters: [
+                                        "query": "news screen viewed"
+                                    ])
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(isFocusedNews() ? "news_focus" :"news")
+                                            .resizable()
+                                            .frame(width: 28, height: 24)
+                                            .padding(4)
+                                        Text("News")
+                                            .font(.system(size: 28,weight: .medium,design: .default))
+                                            .foregroundColor(isFocusedNews() ? .white : Color(hex: "#005C79")).padding(4)
+                                    }
+                                }.disabled(showSettingsPopup)
+                                    .focused($focusedButton, equals: .news)
+                                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedNews(),height: 60, width: 200,cornerRadius: 30))
+                                Button(action: {
+                                    searchType = "shopping"
+                                    Analytics.logEvent("search_shop", parameters: [
+                                        "query": "Search is requested from shop"
+                                    ])
+                                    Analytics.logEvent("shop_tab_btn_pressed", parameters: [
+                                        "query": "Shopping Tab Button Pressed"
+                                    ])
+                                    Analytics.logEvent("shopping view", parameters: [
+                                        "query": "shopping screen viewed"
+                                    ])
+                                    
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(isFocusedShopping() ? "shopping_focus" :"shopping")
+                                            .resizable()
+                                            .frame(width: 25, height: 25)
+                                            .padding(4)
+                                        Text("Shopping")
+                                            .font(.system(size: 28,weight: .medium,design: .default))
+                                            .foregroundColor(isFocusedShopping() ? .white : Color(hex: "#005C79")).padding(4)
+                                    }
+                                }.disabled(showSettingsPopup)
+                                    .focused($focusedButton, equals: .shopping)
+                                    .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedShopping(),height: 60, width: 255,cornerRadius: 30))
+                            }.padding(.top, 4)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .focusSection()
+                        }
                     }
-                
-                    if(searchType == "general" || searchType == "isch"){
-                        ScrollView {
-                            VStack(spacing: 20) {
-                                if(searchType == "general" && viewModel.showLoading == false)
-                                {
-                                    ForEach(articleButtons, id: \.0) { index, article in
-                                        articleButtonView(index: index, article: article) {
-                                            UserDefaults.standard.set(article.links, forKey: "links")
-                                            UserDefaults.standard.set(searchText, forKey: "search")
-                                            navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
-                                            Analytics.logEvent("web_result_open", parameters: [
-                                                "message": "Search Result Web Link Open \(link)"
-                                            ])
-
-                                        }
-                                    }
-                                    
-                                    
-                                }
-                                
-                                else if(searchType == "isch" && viewModel.showLoading == false)
-                                {
-                                    
-                                    HStack {
-                                        if(viewModel.searchData.isEmpty == false)
-                                        {
-                                            Text("Search Results")
-                                                .foregroundColor(Color(hex: "#5F6368"))
-                                                .font(.system(size: 28, weight: .regular))
-                                            Spacer()
-                                        }
-                                    }
-                                    .padding(.leading, 26)
-                                    .frame(maxWidth: .infinity)
-                                    
-                                    LazyVGrid(columns: columns, spacing: 16) {
+                    if(networkMonitor.isConnected){
+                        if(searchType == "general" || searchType == "isch"){
+                            ScrollView {
+                                VStack(spacing: 20) {
+                                    if(searchType == "general" && viewModel.showLoading == false)
+                                    {
                                         ForEach(articleButtons, id: \.0) { index, article in
-                                            articleImageView(index: index, article: article)
-                                            {
-                                                UserDefaults.standard.set(article.link, forKey: "links")
+                                            articleButtonView(index: index, article: article) {
+                                                UserDefaults.standard.set(article.links, forKey: "links")
                                                 UserDefaults.standard.set(searchText, forKey: "search")
-                                                navigationPath.append(.webDetail(searchText: searchText, hrefLink: link))
-                                                Analytics.logEvent("image_result_open", parameters: [
-                                                    "message": "Search Result Image Link Open \(link)"
+                                                navigationPath.append(.webDetail(searchText: link, hrefLink: link))
+                                                Analytics.logEvent("web_result_open", parameters: [
+                                                    "message": "Search Result Web Link Open \(link)"
                                                 ])
-
+                                                
                                             }
+                                        }
+                                        
+                                        
+                                    }
+                                    
+                                    else if(searchType == "isch" && viewModel.showLoading == false)
+                                    {
+                                        
+                                        HStack {
+                                            if(viewModel.searchData.isEmpty == false)
+                                            {
+                                                Text("Search Results")
+                                                    .foregroundColor(Color(hex: "#5F6368"))
+                                                    .font(.system(size: 28, weight: .regular))
+                                                Spacer()
+                                            }
+                                        }
+                                        .padding(.leading, 26)
+                                        .frame(maxWidth: .infinity)
+                                        
+                                        LazyVGrid(columns: columns, spacing: 16) {
+                                            ForEach(articleButtons, id: \.0) { index, article in
+                                                articleImageView(index: index, article: article)
+                                                {
+                                                    UserDefaults.standard.set(article.link, forKey: "links")
+                                                    UserDefaults.standard.set(searchText, forKey: "search")
+                                                    navigationPath.append(.webDetail(searchText: link, hrefLink: link))
+                                                    Analytics.logEvent("image_result_open", parameters: [
+                                                        "message": "Search Result Image Link Open \(link)"
+                                                    ])
+                                                    
+                                                }
                                                 .frame(width: 430, height: 460)
                                                 .background(Color.white)
                                                 .cornerRadius(20)
+                                            }
+                                        }
+                                        .padding()
+                                    }
+                                    HStack{
+                                        if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
+                                            Button(action: {
+                                                start = start - 12
+                                                limit = limit - 12
+                                                viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
+                                                print("start")
+                                                print(start)
+                                                print(limit)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                    focusedField = .item(0)
+                                                }
+                                                
+                                                
+                                                
+                                            }) {
+                                                HStack(spacing: 8) {
+                                                    Text("Previous Page")
+                                                        .font(.system( size: 31,weight: .bold, design: .default))
+                                                        .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                                }
+                                            }
+                                            .focused($focusedButton, equals: .loadless)
+                                            .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
+                                        }
+                                        if (viewModel.showLoading == false && limit <= viewModel.totalPages) {
+                                            Button(action: {
+                                                start = limit
+                                                limit = limit + 12
+                                                viewModel.getData(query:  searchText, searchType: searchType, start: start, limit: limit)
+                                                print(start)
+                                                print(limit)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                    focusedField = .item(0)
+                                                }
+                                            }) {
+                                                HStack(spacing: 8) {
+                                                    Text("Next Page")
+                                                        .font(.system( size: 31,weight: .bold, design: .default))
+                                                        .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
+                                                }
+                                            }
+                                            .focused($focusedButton, equals: .loadMore)
+                                            .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
                                         }
                                     }
-                                    .padding()
+                                    
                                 }
-                                HStack{
-                                    if !viewModel.searchData.isEmpty && start != 0 && viewModel.showLoading == false {
-                                        Button(action: {
-                                            start = start - 12
-                                            limit = limit - 12
-                                            viewModel.getData(query: searchText, searchType: searchType, start: start, limit: limit)
-                                            print("start")
-                                            print(start)
-                                            print(limit)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                                focusedField = .item(0)
-                                            }
-                                            
-                                            
-                                            
-                                        }) {
-                                            HStack(spacing: 8) {
-                                                Text("Previous Page")
-                                                    .font(.system( size: 31,weight: .bold, design: .default))
-                                                    .foregroundColor(isFocusedLoadless() ? .white : Color(hex: "#3C3B3B")).padding(8)
-                                            }
-                                        }
-                                        .focused($focusedButton, equals: .loadless)
-                                        .buttonStyle(PremiumButton(isFocused: isFocusedLoadless(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
-                                    }
-                                    if (viewModel.showLoading == false && limit <= viewModel.totalPages) {
-                                        Button(action: {
-                                            start = limit
-                                            limit = limit + 12
-                                            viewModel.getData(query:  searchText, searchType: searchType, start: start, limit: limit)
-                                            print(start)
-                                            print(limit)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                                focusedField = .item(0)
-                                            }
-                                        }) {
-                                            HStack(spacing: 8) {
-                                                Text("Next Page")
-                                                    .font(.system( size: 31,weight: .bold, design: .default))
-                                                    .foregroundColor(isFocusedLoadMore() ? .white : Color(hex: "#3C3B3B")).padding(8)
-                                            }
-                                        }
-                                        .focused($focusedButton, equals: .loadMore)
-                                        .buttonStyle(PremiumButton(isFocused: isFocusedLoadMore(),width: 240,height: 60, cornerRadius: 20)).padding(.bottom, 10)
-                                    }
-                                }
-                                
-                            }
-                        }.disabled(showSettingsPopup)
+                            }.disabled(showSettingsPopup)
+                        }
                     }
                     Spacer()
                     
@@ -721,7 +733,8 @@ struct WebScreen: View {
                     .zIndex(100)
                 }
                 
-            }.disabled(viewModel.showLoading)
+            }
+            .disabled(viewModel.showLoading)
             .focusSection()
             .task(id: viewID) {
 
@@ -744,13 +757,8 @@ struct WebScreen: View {
                
             }
         
-//            .alert("Error", isPresented: $viewModel.showAlert) {
-//                Button("OK", role: .cancel) {}
-//            } message: {
-//                Text(viewModel.chatListLoadingError)
-//            }
-            
-        
+
+    
     }
      
     func base64ToImage(base64String: String) -> UIImage? {
