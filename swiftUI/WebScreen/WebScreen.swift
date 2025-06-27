@@ -302,7 +302,7 @@ struct WebScreen: View {
                                             .font(.system(size: 30, weight: .regular))
                                             .padding(.trailing, 20)
                                             .padding(.leading, 70)
-                                            .padding(.top, 6)
+                                            .padding(.top, 10)
                                             .background(Color.clear)
                                             .textFieldStyle(.plain)
                                             .focused($focusedButton, equals: .search)
@@ -333,6 +333,7 @@ struct WebScreen: View {
                                                 
                                                 
                                                 }
+                                        
                                             .onChange(of: focusedButton) { oldValue, newValue in
                                                 if newValue == .search {
                                                     placeholderText = ""
@@ -342,10 +343,10 @@ struct WebScreen: View {
 
                                                     let trimmedText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                                                     if trimmedText.isEmpty {
-                                                        // Restore the last known valid text
+                                                        
                                                         searchText = previousSearchText
                                                     } else {
-                                                        // Save current as valid if not empty
+                                                        
                                                         previousSearchText = searchText
                                                     }
                                                 }
@@ -360,7 +361,8 @@ struct WebScreen: View {
                                     
                                     
                                     
-                                }.padding(.leading, 20)
+                                }
+                                .padding(.leading, 20)
                             .buttonStyle(WebDetailStyle())
                             .focused($focusedButton, equals: .search)
                             

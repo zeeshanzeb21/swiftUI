@@ -23,7 +23,7 @@ struct swiftUIApp: App {
                     SplashScreenView(isActive: $isActive)
                         .transition(.opacity)
                 } else {
-                    BrowserHomeView(searchText: "")
+                    BrowserHomeView(searchText: "Search Here...")
                         .transition(.opacity)
                 }
             }

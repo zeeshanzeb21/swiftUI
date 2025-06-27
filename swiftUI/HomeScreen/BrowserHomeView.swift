@@ -11,7 +11,7 @@ import Network
 struct BrowserHomeView: View {
     @FocusState private var focusedButton: FocusableButton?
 
-    @State var searchText: String = ""
+    @State var searchText: String
     @FocusState private var isSearchFocused: Bool
     @State private var placeholderText: String = "Search Here..."
     @State private var showError: Bool = false
@@ -66,6 +66,9 @@ struct BrowserHomeView: View {
     @StateObject private var networkMonitor = NetworkMonitor()
     
     @State private var viewID = UUID()
+    
+    @State private var isPlaceholderActive: Bool = true
+
 
 
     
@@ -131,19 +134,6 @@ struct BrowserHomeView: View {
                     .focusSection()
                     .padding(.top, 57)
                     ZStack {
-                        // Background
-//                        RoundedRectangle(cornerRadius: 40)
-//                            .fill(Color.white)
-//                            .frame(width: 950, height: 80)
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 40)
-//                                    .stroke(
-//                                        showError
-//                                            ? Color.red
-//                                            : (isFocusedSearch() ? Color(hex: "#005C79") : Color(hex: "#E3E3E4")),
-//                                        lineWidth: 4
-//                                    )
-//                            )
                         Image(showError ? "search_error" : (isFocusedSearch() ? "search_focus": "search_simple"))
                                 .resizable()
                                 .scaledToFill()
@@ -152,43 +142,46 @@ struct BrowserHomeView: View {
                         
                         HStack(spacing: 0) {
                            
-                            
-                            if searchText.isEmpty {
-                                Text(placeholderText)
-                                    .foregroundColor(Color(hex: "#6A6767"))
-                                    .font(.system(size: 30, weight: .regular))
-                                    .padding(.leading, 70)
-                                    .lineLimit(1)
-                                   
-                            }
-                            
-                            if(focusedButton != .search)
-                            {
-                                Text(searchText)
-                                    .foregroundColor(Color(hex: "#6A6767"))
-                                    .font(.system(size: 30, weight: .regular))
-                                    .padding(.leading, 70)
-                                    .lineLimit(1)
-
-                            }
+//                            if (searchText.isEmpty || focusedButton != .search) {
+//                                Text(searchText.isEmpty ? placeholderText : searchText)
+//                                    .foregroundColor(Color(hex: "#6A6767"))
+//                                    .font(.system(size: 30, weight: .regular))
+//                                    .padding(.leading, 70)
+//                                    .lineLimit(1)
+//                            }
+//                            
                             
                             TextField("Search Here...", text: $searchText)
                                 .foregroundColor(Color(hex: "#6A6767"))
                                 .font(.system(size: 30, weight: .regular))
                                 .padding(.leading, searchText.isEmpty ? 10 : 70)
                                 .padding(.trailing, 20)
-                                
-                                .background(Color.clear)
+                                .padding(.trailing, 20)
+                                .padding(.top, 10)
                                 .textFieldStyle(.plain)
+                                .background(Color.clear)
                                 .focused($focusedButton, equals: .search)
                                 .onChange(of: focusedButton) { oldValue, newValue in
                                     if newValue == .search {
                                         placeholderText = ""
                                         showError = false
+                                        if(searchText == "")
+                                        {
+                                            searchText = "Search Here..."
+                                            placeholderText = "Search Here..."
+                                        }
                                     } else {
                                         placeholderText = "Search Here..."
+                                        
+                                        
                                     }
                                 }
+                                .onChange(of: searchText) { oldValue, newValue in
+                                        if oldValue == "Search Here..." && newValue != oldValue {
+                                            searchText = newValue.replacingOccurrences(of: "Search Here...", with: "")
+                                        }
+                                    }
+                            
                         }
                         
                         
@@ -198,7 +191,7 @@ struct BrowserHomeView: View {
                             Button(action: {
                              
                                 
-                                if(searchText.isEmpty == false)
+                                if(searchText.isEmpty == false && searchText != "Search Here...")
                                 {
                                     
                                     Analytics.logEvent("search_manual", parameters: [
@@ -237,7 +230,7 @@ struct BrowserHomeView: View {
                     HStack(spacing: 40) {
                         Button(action: {
                             print("Tapped")
-                            if(searchText.isEmpty == false)
+                            if(searchText.isEmpty == false && searchText != "Search Here...")
                             {
                                 Analytics.logEvent("search_direct_image", parameters: [
                                     "query": "Direct Search is requested via image \(searchText)"
@@ -289,7 +282,7 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedYoutube(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
-                            if(searchText.isEmpty == false)
+                            if(searchText.isEmpty == false && searchText != "Search Here...")
                             {
                                 
                                 let twitchUrl = "https://www.twitch.tv/search?term="
@@ -323,7 +316,7 @@ struct BrowserHomeView: View {
                     HStack(spacing: 40) {
                         Button(action: {
                             print("Tapped")
-                            if(searchText.isEmpty == false)
+                            if(searchText.isEmpty == false && searchText != "Search Here...")
                             {
                                 
                                 let twitchUrl = "https://en.wikipedia.org/wiki/Special:Search?search="
@@ -353,7 +346,7 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedWeki(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
-                            if(searchText.isEmpty == false)
+                            if(searchText.isEmpty == false && searchText != "Search Here...")
                             {
                                 
                                 let twitchUrl = "https://www.ebay.com/sch/i.html?_n="
@@ -383,7 +376,7 @@ struct BrowserHomeView: View {
                         .buttonStyle(BorderedMainButtonStyle(isFocused: isFocusedEbay(),height: 105, width: 350,cornerRadius: 53))
                         Button(action: {
                             print("Tapped")
-                            if(searchText.isEmpty == false)
+                            if(searchText.isEmpty == false && searchText != "Search Here...")
                             {
                                 
                                 let twitchUrl = "https://www.pinterest.com/search/pins/?q="
@@ -469,6 +462,4 @@ struct BrowserHomeView: View {
     }
 }
     
-#Preview {
-    BrowserHomeView()
-}
+
